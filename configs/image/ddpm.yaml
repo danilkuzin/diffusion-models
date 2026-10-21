@@ -1,0 +1,29 @@
+# The baseline: 770K-param UNet, cosine schedule, EMA, DDPM sampling.
+run_name: ddpm_baseline
+noise_schedule:
+  type: cosine
+  T: 1000
+data:
+  batch_size: 128
+  num_channels: 3
+  height: 32
+  width: 32
+  num_classes: 10
+  random_flip: true
+model:
+  type: unet
+  num_ch: 32
+  num_groups: 4
+  embd_dim: 64
+  num_heads: 2
+  channel_mults: [1, 2, 2, 2]
+  num_res_blocks: 2
+  attention_stage_index: 1
+train:
+  num_epochs: 200
+  lr: 0.001
+  eval_every_n_epochs: 5
+  grad_clip: 1.0
+ema:
+  decay: 0.999
+  update_freq: 1

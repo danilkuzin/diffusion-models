@@ -1,0 +1,7 @@
+datasets[vision]>=4.8.4
+pydantic
+pytest
+torchmetrics[image]
+matplotlib
+tensorboard
+Pillow
