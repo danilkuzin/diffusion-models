@@ -6,7 +6,7 @@ Every score in this repo is FID (Heusel et al. 2017) and KID (Bińkowski et al. 
 
 FID fits a Gaussian to each set's 2048-d Inception features and takes the Fréchet distance between the two:
 
-$$\mathrm{FID} = \lVert \mu_r - \mu_g \rVert^2 + \operatorname{Tr}\!\left(\Sigma_r + \Sigma_g - 2\,(\Sigma_r \Sigma_g)^{1/2}\right).$$
+$$\mathrm{FID} = \lVert \mu_r - \mu_g \rVert^2 + \mathrm{Tr}\left(\Sigma_r + \Sigma_g - 2\,(\Sigma_r \Sigma_g)^{1/2}\right).$$
 
 With $\mu$ and $\Sigma$ estimated from finite samples, FID is biased upwards: two independent samples of one distribution score above 0, and the bias grows as the samples shrink.
 
@@ -87,7 +87,51 @@ python -m ddpm.image.compare --root /data \
 - **Common random numbers.** Every variant is reseeded before scoring, so all the variants in one invocation share their starting noise and real images. Their differences are less noisy than independent scores would be.
 - **The default budget is small:** 20 generated batches against 20 real ones. `--num-fid-batches 100 --max-real-batches 391` matches the full protocol (391 batches of 128 cover the 50,000 training images).
 - **Resumable.** `--out` is rewritten after every variant, and a re-run reuses the rows already in it (`--fresh` re-scores everything).
+- **Across invocations.** Reseeding makes every variant at a given seed draw the same starting noise and real images, whichever invocation it runs in, so rows from separate runs at one seed share them too. Timings don't carry over: the same 1000 DDPM calls took 70 minutes in one Colab session and 85 in another.
+- **Cost is model calls, not steps.** Predictor–corrector makes two per step, and classifier-free guidance doubles every call. Compare samplers at equal calls.
 
 Before calling a gap a result, check that both sides used the same protocol and EMA weights, and that the gap is above $2\sigma$ for that protocol.
 
-The README's DDIM rows are one such run, on the full protocol at seed 0 ([`results/compare_ddim.json`](../results/compare_ddim.json)). Its DDPM row reproduces the baseline's seed-0 score, 35.88. Its timings include Inception's fixed cost per batch, so the speed-ups trail the step ratios: 13× for 20× fewer steps. The DDIM rows take their noise level from the DDPM baseline's seed stds, 0.33 FID and 0.0003 KID; DDIM's own were not measured.
+The README's DDIM rows are one such run, on the full protocol at seed 0 ([`results/compare_ddim.json`](../results/compare_ddim.json)). Its DDPM row reproduces the baseline's seed-0 score, 35.88. Its timings include Inception's fixed cost per batch, so the speed-ups trail the step ratios: 13× for 20× fewer steps. The VP-SDE and flow rows are two more runs at seed 0, on their own checkpoints ([`results/compare_vpsde.json`](../results/compare_vpsde.json), [`results/compare_flow.json`](../results/compare_flow.json)); the VP run's DDPM row reproduces 35.88 again. All of these rows take their noise level from the DDPM baseline's seed stds, 0.33 FID and 0.0003 KID; their own were not measured.
+
+### The README's runs
+
+One `ddpm.image.compare` run per results table, each on the full protocol at seed 0. The VP run's `ddpm` variant is the anchor that reproduces the seed-0 DDPM row.
+
+```bash
+# The seed-0 DDPM and DDIM rows
+python -m ddpm.image.compare --root /data \
+    --variant ddpm=configs/image/ddpm.yaml \
+    --variant ddim_10=configs/image/ddpm.yaml,sampler=ddim,eta=0.0,steps=10 \
+    --variant ddim_20=configs/image/ddpm.yaml,sampler=ddim,eta=0.0,steps=20 \
+    --variant ddim_50=configs/image/ddpm.yaml,sampler=ddim,eta=0.0,steps=50 \
+    --variant ddim_100=configs/image/ddpm.yaml,sampler=ddim,eta=0.0,steps=100 \
+    --variant ddim_250=configs/image/ddpm.yaml,sampler=ddim,eta=0.0,steps=250 \
+    --variant ddimeta1_50=configs/image/ddpm.yaml,sampler=ddim,eta=1.0,steps=50 \
+    --variant ddimeta1_100=configs/image/ddpm.yaml,sampler=ddim,eta=1.0,steps=100 \
+    --num-fid-batches 100 --max-real-batches 391 --out compare_ddim.json
+
+# The VP SDE rows
+python -m ddpm.image.compare --root /data \
+    --variant pfode_10=configs/image/vpsde.yaml,sampler=pfode,steps=10 \
+    --variant pfode_20=configs/image/vpsde.yaml,sampler=pfode,steps=20 \
+    --variant pfode_50=configs/image/vpsde.yaml,sampler=pfode,steps=50 \
+    --variant pfode_100=configs/image/vpsde.yaml,sampler=pfode,steps=100 \
+    --variant euler_vp_100=configs/image/vpsde.yaml,steps=100 \
+    --variant pc_500=configs/image/vpsde.yaml,sampler=pc,steps=500 \
+    --variant euler_vp_1000=configs/image/vpsde.yaml \
+    --variant pfode_1000=configs/image/vpsde.yaml,sampler=pfode \
+    --variant ddpm=configs/image/ddpm.yaml \
+    --num-fid-batches 100 --max-real-batches 391 --out compare_vpsde.json
+
+# The rectified-flow rows
+python -m ddpm.image.compare --root /data \
+    --variant flow_1=configs/image/flow.yaml,steps=1 \
+    --variant flow_2=configs/image/flow.yaml,steps=2 \
+    --variant flow_5=configs/image/flow.yaml,steps=5 \
+    --variant flow_10=configs/image/flow.yaml,steps=10 \
+    --variant flow_20=configs/image/flow.yaml,steps=20 \
+    --variant flow_50=configs/image/flow.yaml,steps=50 \
+    --variant flow_100=configs/image/flow.yaml,steps=100 \
+    --num-fid-batches 100 --max-real-batches 391 --out compare_flow.json
+```

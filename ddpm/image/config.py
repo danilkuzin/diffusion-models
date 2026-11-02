@@ -30,6 +30,38 @@ class CosineScheduleConfig(BaseModel):
     s: PositiveFloat = 0.008
 
 
+class VariancePreservingScheduleConfig(BaseModel):
+    """VP SDE (Song et al. 2021, score SDE Eq. 11): beta(t) linear from beta_min to beta_max on
+    t in [0, 1]. The paper uses 0.1 and 20, DDPM's linear beta at N = 1000."""
+
+    type: Literal["vp_sde"] = "vp_sde"
+    beta_min: PositiveFloat
+    beta_max: PositiveFloat
+
+
+class VarianceExplodingScheduleConfig(BaseModel):
+    """VE SDE (score SDE Eq. 9): sigma(t) geometric from sigma_min to sigma_max. The paper uses
+    0.01 and 50 on CIFAR-10."""
+
+    type: Literal["ve_sde"] = "ve_sde"
+    sigma_min: PositiveFloat
+    sigma_max: PositiveFloat
+
+
+class SubVariancePreservingScheduleConfig(BaseModel):
+    """Sub-VP SDE (score SDE Eq. 12): the VP SDE's beta(t), with less noise injected."""
+
+    type: Literal["sub_vp_sde"] = "sub_vp_sde"
+    beta_min: PositiveFloat
+    beta_max: PositiveFloat
+
+
+class RectifiedFlowScheduleConfig(BaseModel):
+    """Rectified flow's straight path from noise to data; it has no parameters."""
+
+    type: Literal["rectified_flow"] = "rectified_flow"
+
+
 class DataConfig(BaseModel):
     batch_size: PositiveInt = 16
     num_channels: PositiveInt = 3
@@ -58,6 +90,39 @@ class DDIMSamplerConfig(BaseModel):
     type: Literal["ddim"] = "ddim"
     # DDIM Eq. 16: 0 is deterministic, 1 gives the DDPM posterior variance
     eta: NonNegativeFloat = 0.0
+
+
+class EulerMaruyamaVPSamplerConfig(BaseModel):
+    """Euler-Maruyama on the reverse SDE (score SDE Eq. 6). "vp" is the VP family: VP or
+    sub-VP."""
+
+    type: Literal["euler_vp"] = "euler_vp"
+
+
+class EulerMaruyamaVESamplerConfig(BaseModel):
+    type: Literal["euler_ve"] = "euler_ve"
+
+
+class PredictorCorrectorSamplerConfig(BaseModel):
+    """Score SDE App. G, VP family: num_iter Langevin corrector steps at signal-to-noise ratio
+    alpha_snr after each predictor step. 0.16 is the paper's VE ratio (App. H); it tuned VP's
+    per sampler (Table 5)."""
+
+    type: Literal["pc"] = "pc"
+    num_iter: PositiveInt = 1
+    alpha_snr: PositiveFloat = 0.16
+
+
+class PFODESamplerConfig(BaseModel):
+    """Euler on the probability flow ODE (score SDE Eq. 13), VP family."""
+
+    type: Literal["pfode"] = "pfode"
+
+
+class RectifiedFlowSamplerConfig(BaseModel):
+    """Euler integration of the learned velocity field, t: 0 -> 1 (noise -> data)."""
+
+    type: Literal["flow_euler"] = "flow_euler"
 
 
 class EMAConfig(BaseModel):
@@ -95,8 +160,26 @@ class DiTModelConfig(BaseModel):
         return self
 
 
-AnyScheduleConfig = LinearScheduleConfig | CosineScheduleConfig
-AnySamplerConfig = DDPMSamplerConfig | DDIMSamplerConfig
+DiscreteScheduleConfig = LinearScheduleConfig | CosineScheduleConfig
+AnyScheduleConfig = (
+    LinearScheduleConfig
+    | CosineScheduleConfig
+    | VariancePreservingScheduleConfig
+    | VarianceExplodingScheduleConfig
+    | SubVariancePreservingScheduleConfig
+    | RectifiedFlowScheduleConfig
+)
+
+AnySamplerConfig = (
+    DDPMSamplerConfig
+    | DDIMSamplerConfig
+    | EulerMaruyamaVPSamplerConfig
+    | EulerMaruyamaVESamplerConfig
+    | PredictorCorrectorSamplerConfig
+    | PFODESamplerConfig
+    | RectifiedFlowSamplerConfig
+)
+
 AnyModelConfig = UNetModelConfig | DiTModelConfig
 
 

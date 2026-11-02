@@ -98,7 +98,7 @@ class DiT(BaseModel):
     def forward(
         self, img: torch.Tensor, t: torch.Tensor, lbl: torch.Tensor | None = None
     ) -> torch.Tensor:
-        """img: (B, C, H, W) in [-1, 1]; t: (B,) or (B, 1), long in [0, T);
+        """img: (B, C, H, W) in [-1, 1]; t: (B,) or (B, 1), long in [0, T) or float32 in [0, 1];
         lbl: (B,) long, index num_classes = the CFG null class, or None -> eps: (B, C, H, W)."""
         B = img.shape[0]
 

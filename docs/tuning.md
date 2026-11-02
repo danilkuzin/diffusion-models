@@ -72,6 +72,7 @@ Compare EMA weights, never one raw checkpoint against another. On the full proto
 - **Short learning-rate runs.** The 30-epoch ranking did not hold at 200 epochs. The learning rate was settled only on EMA weights.
 - **The proxy understates gaps.** From 16 to 32 channels it measured 21.0 where the full protocol measured 24.6; for adding EMA and lr $10^{-3}$, about 4–5 against 10.1. Its sampling noise was not measured. Its scores predate a fix to DDIM's step grid, so they compare with each other, not with current DDIM numbers.
 - **Flips and gradient clipping are not ablated.** Both entered the config together with a learning-rate change, and the result was 8 FID worse ([appendix](#appendix-before-the-ladder)). The learning rate explains about 2 FID of that. Training the final config without each of them would attribute the rest.
+- **One config for three forward processes.** [`vpsde.yaml`](../configs/image/vpsde.yaml) and [`flow.yaml`](../configs/image/flow.yaml) reuse this config unchanged; nothing was tuned for them.
 - **Not tried:** 64 channels at equal wall-clock time, EMA decay 0.9995, training past 200 epochs with EMA, dropout, learning-rate warmup, mixed precision.
 
 ## Reproduce

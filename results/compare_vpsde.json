@@ -1,0 +1,176 @@
+[
+  {
+    "variant": "pfode_10",
+    "params": 770403,
+    "sampler": "pfode",
+    "num_sampler_steps": 10,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/vpsde.yaml",
+      "sampler": "pfode",
+      "steps": "10"
+    },
+    "fid": 172.41383361816406,
+    "kid_mean": 0.1812429130077362,
+    "kid_std": 0.0036084509920328856,
+    "generation_seconds": 159.9
+  },
+  {
+    "variant": "pfode_20",
+    "params": 770403,
+    "sampler": "pfode",
+    "num_sampler_steps": 20,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/vpsde.yaml",
+      "sampler": "pfode",
+      "steps": "20"
+    },
+    "fid": 88.73543548583984,
+    "kid_mean": 0.08041579276323318,
+    "kid_std": 0.002340506063774228,
+    "generation_seconds": 201.4
+  },
+  {
+    "variant": "pfode_50",
+    "params": 770403,
+    "sampler": "pfode",
+    "num_sampler_steps": 50,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/vpsde.yaml",
+      "sampler": "pfode",
+      "steps": "50"
+    },
+    "fid": 50.82258605957031,
+    "kid_mean": 0.03832899406552315,
+    "kid_std": 0.0014771573478356004,
+    "generation_seconds": 329.6
+  },
+  {
+    "variant": "pfode_100",
+    "params": 770403,
+    "sampler": "pfode",
+    "num_sampler_steps": 100,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/vpsde.yaml",
+      "sampler": "pfode",
+      "steps": "100"
+    },
+    "fid": 42.65815734863281,
+    "kid_mean": 0.03005153313279152,
+    "kid_std": 0.001267238287255168,
+    "generation_seconds": 542.1
+  },
+  {
+    "variant": "euler_vp_100",
+    "params": 770403,
+    "sampler": "euler_vp",
+    "num_sampler_steps": 100,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/vpsde.yaml",
+      "steps": "100"
+    },
+    "fid": 68.78900146484375,
+    "kid_mean": 0.05789275839924812,
+    "kid_std": 0.002306551206856966,
+    "generation_seconds": 542.3
+  },
+  {
+    "variant": "pc_500",
+    "params": 770403,
+    "sampler": "pc",
+    "num_sampler_steps": 500,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/vpsde.yaml",
+      "sampler": "pc",
+      "steps": "500"
+    },
+    "fid": 39.27349090576172,
+    "kid_mean": 0.027854733169078827,
+    "kid_std": 0.0015039544086903334,
+    "generation_seconds": 4396.8
+  },
+  {
+    "variant": "euler_vp_1000",
+    "params": 770403,
+    "sampler": "euler_vp",
+    "num_sampler_steps": 1000,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/vpsde.yaml"
+    },
+    "fid": 39.154052734375,
+    "kid_mean": 0.029011087492108345,
+    "kid_std": 0.0014272277476266026,
+    "generation_seconds": 4769.1
+  },
+  {
+    "variant": "pfode_1000",
+    "params": 770403,
+    "sampler": "pfode",
+    "num_sampler_steps": 1000,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/vpsde.yaml",
+      "sampler": "pfode"
+    },
+    "fid": 37.5969352722168,
+    "kid_mean": 0.026218118146061897,
+    "kid_std": 0.0012205722741782665,
+    "generation_seconds": 5046.8
+  },
+  {
+    "variant": "ddpm",
+    "params": 770403,
+    "sampler": "ddpm",
+    "num_sampler_steps": 1000,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/ddpm.yaml"
+    },
+    "fid": 35.880775451660156,
+    "kid_mean": 0.025967270135879517,
+    "kid_std": 0.0015192774590104818,
+    "generation_seconds": 5091.7
+  }
+]

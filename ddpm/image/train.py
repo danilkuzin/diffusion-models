@@ -9,7 +9,7 @@ import torch
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.tensorboard.writer import SummaryWriter
 
-from ddpm.image.config import Config, UNetModelConfig, load_config
+from ddpm.image.config import Config, DiscreteScheduleConfig, UNetModelConfig, load_config
 from ddpm.image.data import Batch, get_dataloaders, load_data, reverse_transform, transform
 from ddpm.image.diffusion import create_sampler, create_schedule
 from ddpm.image.diffusion.base import BaseSchedule
@@ -53,7 +53,9 @@ def apply_train_overrides(
 
 def loss_bucket(ts: torch.Tensor, config: Config) -> torch.Tensor:
     """Timesteps (B, 1) -> the tenth of the time range each falls in: (B,) long in [0, 10)."""
-    return ts.squeeze(1) * NUM_LOSS_BUCKETS // config.noise_schedule.T
+    if isinstance(config.noise_schedule, DiscreteScheduleConfig):
+        return ts.squeeze(1) * NUM_LOSS_BUCKETS // config.noise_schedule.T
+    return (ts.squeeze(1) * NUM_LOSS_BUCKETS).long().clamp(max=NUM_LOSS_BUCKETS - 1)
 
 
 def validation_loss(
@@ -174,7 +176,7 @@ class DiffusionTrainer:
         self.optimizer.zero_grad()
         ts = self.noise_schedule.sample_random_timestamps(img_batch.shape[0], self.config.device)
         x_t = self.noise_schedule.forward(img_batch, ts, eps)
-        # eps for diffusion schedules
+        # eps for diffusion schedules, a velocity for rectified flow
         target = self.noise_schedule.training_target(img_batch, ts, eps)
 
         if self.config.guidance is None:

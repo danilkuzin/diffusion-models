@@ -1,4 +1,3 @@
-# The baseline: 770K-param UNet, cosine schedule, EMA, DDPM sampling.
 run_name: ddpm_baseline
 noise_schedule:
   type: cosine

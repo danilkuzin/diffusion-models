@@ -1,5 +1,3 @@
-# Backbone arm: ddpm.yaml with a DiT of 765K params, matched to its UNet's 770K.
-# The lr was tuned for the UNet, not for this model.
 run_name: dit_baseline
 noise_schedule:
   type: cosine

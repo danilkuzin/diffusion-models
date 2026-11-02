@@ -220,7 +220,7 @@ class UNetWideResNetAttnCIFAR10(BaseModel):
     def forward(
         self, x: torch.Tensor, t: torch.Tensor, lbl: torch.Tensor | None = None
     ) -> torch.Tensor:
-        """x: (B, C, H, W) in [-1, 1]; t: (B,) or (B, 1), long in [0, T);
+        """x: (B, C, H, W) in [-1, 1]; t: (B,) or (B, 1), long in [0, T) or float32 in [0, 1];
         lbl: (B,) long, index num_classes = the CFG null class, or None -> eps: (B, C, H, W)."""
         B = x.shape[0]
         t = t.reshape(B, 1)

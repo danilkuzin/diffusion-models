@@ -12,7 +12,15 @@ from ddpm.image.config import (
     CosineScheduleConfig,
     DDIMSamplerConfig,
     DDPMSamplerConfig,
+    EulerMaruyamaVESamplerConfig,
+    EulerMaruyamaVPSamplerConfig,
     LinearScheduleConfig,
+    PFODESamplerConfig,
+    PredictorCorrectorSamplerConfig,
+    RectifiedFlowSamplerConfig,
+    RectifiedFlowScheduleConfig,
+    VarianceExplodingScheduleConfig,
+    VariancePreservingScheduleConfig,
 )
 from ddpm.image.diffusion import create_sampler, create_schedule
 from ddpm.image.diffusion.base import BaseSampler
@@ -26,10 +34,20 @@ from ddpm.image.models.base import BaseModel
 
 SHAPE = (8, 3, 4, 4)
 
+_VP = VariancePreservingScheduleConfig(beta_min=0.1, beta_max=20.0)
+
 # Every sampler with the schedule `create_sampler` pairs it with.
 SAMPLER_CASES: dict[str, tuple[AnyScheduleConfig, AnySamplerConfig]] = {
     "ddpm": (CosineScheduleConfig(T=5), DDPMSamplerConfig()),  # runs only num_steps = T
     "ddim": (CosineScheduleConfig(T=10), DDIMSamplerConfig(eta=0.0)),
+    "euler_vp": (_VP, EulerMaruyamaVPSamplerConfig()),
+    "euler_ve": (
+        VarianceExplodingScheduleConfig(sigma_min=0.01, sigma_max=50.0),
+        EulerMaruyamaVESamplerConfig(),
+    ),
+    "pc": (_VP, PredictorCorrectorSamplerConfig()),
+    "pfode": (_VP, PFODESamplerConfig()),
+    "flow_euler": (RectifiedFlowScheduleConfig(), RectifiedFlowSamplerConfig()),
 }
 
 
@@ -54,12 +72,24 @@ class RecordingModel(BaseModel):
         return 0.1 * x
 
 
-# The timestep the model sees at each call for `num_steps=5`, one call per step. DDIM's grid ends
-# at -1, the clean image, which the model never sees. Changing any of them changes sampling, so
-# it has to be a deliberate edit here.
-EXPECTED_CALLS: dict[str, list[int]] = {
-    "ddpm": [4, 3, 2, 1, 0],
-    "ddim": [8, 6, 4, 2, 0],
+_SDE_GRID = [1.0, 0.80002, 0.60004, 0.40006, 0.20008]  # linspace(1, 1e-4, 6) without its end
+
+# The timestep the model sees at each call for `num_steps=5`, and its dtype: one call per step,
+# plus PC's corrector calls. DDIM's grid ends at -1, the clean image, which the model never sees.
+# Changing any of them changes sampling, so it has to be a deliberate edit here.
+EXPECTED_CALLS: dict[str, tuple[list[float], torch.dtype]] = {
+    "ddpm": ([4, 3, 2, 1, 0], torch.long),
+    "ddim": ([8, 6, 4, 2, 0], torch.long),
+    "euler_vp": (_SDE_GRID, torch.float32),
+    "euler_ve": (_SDE_GRID, torch.float32),
+    # The predictor at each t, then the corrector at the s it stepped to, the last one included.
+    "pc": (
+        [1.0, 0.80002, 0.80002, 0.60004, 0.60004, 0.40006, 0.40006, 0.20008, 0.20008, 1e-4],
+        torch.float32,
+    ),
+    "pfode": (_SDE_GRID, torch.float32),
+    # Rectified flow integrates forwards, from noise at t = 0.
+    "flow_euler": ([0.0, 0.2, 0.4, 0.6, 0.8], torch.float32),
 }
 
 
@@ -73,10 +103,15 @@ def test_sample_calls_the_model_at_the_pinned_timesteps(name: str) -> None:
 
     out = sampler.sample(model, x, None, config, num_steps=5)
 
+    expected_ts, expected_dtype = EXPECTED_CALLS[name]
     assert out.shape == SHAPE
-    assert all(t.dtype == torch.long for t in model.calls)
-    # One t for the whole batch per call: (B,) long.
-    assert [t.tolist() for t in model.calls] == [[s] * SHAPE[0] for s in EXPECTED_CALLS[name]]
+    assert len(model.calls) == len(expected_ts)
+    for t, expected in zip(model.calls, expected_ts, strict=True):
+        # One t for the whole batch per call: (B,).
+        assert t.dtype == expected_dtype
+        assert t.shape == (SHAPE[0],)
+        assert torch.all(t == t[0])
+        assert t[0].item() == pytest.approx(expected)
 
 
 DATA_STD = 0.25  # x_0 ~ N(0, DATA_STD^2 I): 4 std inside [-1, 1], so clipping ~never fires

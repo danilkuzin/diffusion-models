@@ -14,8 +14,17 @@ from ddpm.image.config import (
     DDIMSamplerConfig,
     DDPMSamplerConfig,
     DiTModelConfig,
+    EulerMaruyamaVESamplerConfig,
+    EulerMaruyamaVPSamplerConfig,
     LinearScheduleConfig,
+    PFODESamplerConfig,
+    PredictorCorrectorSamplerConfig,
+    RectifiedFlowSamplerConfig,
+    RectifiedFlowScheduleConfig,
+    SubVariancePreservingScheduleConfig,
     UNetModelConfig,
+    VarianceExplodingScheduleConfig,
+    VariancePreservingScheduleConfig,
 )
 from ddpm.image.diffusion import create_sampler, create_schedule
 from ddpm.image.diffusion.discrete import (
@@ -23,6 +32,16 @@ from ddpm.image.diffusion.discrete import (
     DDIMSampler,
     DDPMSampler,
     LinearDiscreteSchedule,
+)
+from ddpm.image.diffusion.flow import RectifiedFlowSampler, RectifiedFlowSchedule
+from ddpm.image.diffusion.sde import (
+    EulerMaruyamaVESampler,
+    EulerMaruyamaVPSampler,
+    PFODESampler,
+    PredictorCorrectorSampler,
+    SubVariancePreservingSchedule,
+    VarianceExplodingSchedule,
+    VariancePreservingSchedule,
 )
 from ddpm.image.models import create_model
 from ddpm.image.models.dit import DiT
@@ -33,18 +52,37 @@ from ddpm.image.models.unet import UNetWideResNetAttnCIFAR10
 EXPECTED_SCHEDULES: dict[Any, Any] = {
     LinearScheduleConfig: LinearDiscreteSchedule,
     CosineScheduleConfig: CosineDiscreteSchedule,
+    VariancePreservingScheduleConfig: VariancePreservingSchedule,
+    VarianceExplodingScheduleConfig: VarianceExplodingSchedule,
+    SubVariancePreservingScheduleConfig: SubVariancePreservingSchedule,
+    RectifiedFlowScheduleConfig: RectifiedFlowSchedule,
 }
 
 # create_sampler asserts the schedule pairing, so each sampler comes with a legal schedule.
 EXPECTED_SAMPLERS: dict[Any, tuple[Any, Any]] = {
     DDPMSamplerConfig: (DDPMSampler, LinearScheduleConfig),
     DDIMSamplerConfig: (DDIMSampler, LinearScheduleConfig),
+    EulerMaruyamaVPSamplerConfig: (EulerMaruyamaVPSampler, VariancePreservingScheduleConfig),
+    EulerMaruyamaVESamplerConfig: (EulerMaruyamaVESampler, VarianceExplodingScheduleConfig),
+    PredictorCorrectorSamplerConfig: (
+        PredictorCorrectorSampler,
+        VariancePreservingScheduleConfig,
+    ),
+    PFODESamplerConfig: (PFODESampler, VariancePreservingScheduleConfig),
+    RectifiedFlowSamplerConfig: (RectifiedFlowSampler, RectifiedFlowScheduleConfig),
 }
 
 EXPECTED_MODELS: dict[Any, Any] = {
     UNetModelConfig: UNetWideResNetAttnCIFAR10,
     DiTModelConfig: DiT,
 }
+
+
+def _build(config_cls: Any) -> Any:
+    """A config with every required field set to 0.1, which suits PositiveFloat and
+    NonNegativeFloat. A required field of another type fails here."""
+    required = {name: 0.1 for name, field in config_cls.model_fields.items() if field.is_required()}
+    return config_cls(**required)
 
 
 def test_schedule_union_is_fully_covered() -> None:
@@ -61,7 +99,7 @@ def test_model_union_is_fully_covered() -> None:
 
 @pytest.mark.parametrize("config_cls", typing.get_args(AnyScheduleConfig))
 def test_create_schedule_handles_every_union_member(config_cls: Any) -> None:
-    schedule = create_schedule(config_cls())
+    schedule = create_schedule(_build(config_cls))
 
     assert isinstance(schedule, EXPECTED_SCHEDULES[config_cls])
 
@@ -69,9 +107,9 @@ def test_create_schedule_handles_every_union_member(config_cls: Any) -> None:
 @pytest.mark.parametrize("config_cls", typing.get_args(AnySamplerConfig))
 def test_create_sampler_handles_every_union_member(config_cls: Any) -> None:
     expected_cls, schedule_config_cls = EXPECTED_SAMPLERS[config_cls]
-    schedule = create_schedule(schedule_config_cls())
+    schedule = create_schedule(_build(schedule_config_cls))
 
-    sampler = create_sampler(config_cls(), schedule)
+    sampler = create_sampler(_build(config_cls), schedule)
 
     assert isinstance(sampler, expected_cls)
 

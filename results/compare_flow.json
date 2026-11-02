@@ -1,0 +1,135 @@
+[
+  {
+    "variant": "flow_1",
+    "params": 770403,
+    "sampler": "flow_euler",
+    "num_sampler_steps": 1,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/flow.yaml",
+      "steps": "1"
+    },
+    "fid": 392.06256103515625,
+    "kid_mean": 0.43820348381996155,
+    "kid_std": 0.003500420833006501,
+    "generation_seconds": 114.1
+  },
+  {
+    "variant": "flow_2",
+    "params": 770403,
+    "sampler": "flow_euler",
+    "num_sampler_steps": 2,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/flow.yaml",
+      "steps": "2"
+    },
+    "fid": 198.30429077148438,
+    "kid_mean": 0.20110704004764557,
+    "kid_std": 0.003107593394815922,
+    "generation_seconds": 131.7
+  },
+  {
+    "variant": "flow_5",
+    "params": 770403,
+    "sampler": "flow_euler",
+    "num_sampler_steps": 5,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/flow.yaml",
+      "steps": "5"
+    },
+    "fid": 67.62653350830078,
+    "kid_mean": 0.06909683346748352,
+    "kid_std": 0.002236899919807911,
+    "generation_seconds": 143.7
+  },
+  {
+    "variant": "flow_10",
+    "params": 770403,
+    "sampler": "flow_euler",
+    "num_sampler_steps": 10,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/flow.yaml",
+      "steps": "10"
+    },
+    "fid": 48.676963806152344,
+    "kid_mean": 0.04947024583816528,
+    "kid_std": 0.0020277774892747402,
+    "generation_seconds": 166.6
+  },
+  {
+    "variant": "flow_20",
+    "params": 770403,
+    "sampler": "flow_euler",
+    "num_sampler_steps": 20,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/flow.yaml",
+      "steps": "20"
+    },
+    "fid": 42.28976821899414,
+    "kid_mean": 0.04052288830280304,
+    "kid_std": 0.001979006454348564,
+    "generation_seconds": 212.2
+  },
+  {
+    "variant": "flow_50",
+    "params": 770403,
+    "sampler": "flow_euler",
+    "num_sampler_steps": 50,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/flow.yaml",
+      "steps": "50"
+    },
+    "fid": 38.965152740478516,
+    "kid_mean": 0.03387641906738281,
+    "kid_std": 0.0017347532557323575,
+    "generation_seconds": 348.4
+  },
+  {
+    "variant": "flow_100",
+    "params": 770403,
+    "sampler": "flow_euler",
+    "num_sampler_steps": 100,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/flow.yaml",
+      "steps": "100"
+    },
+    "fid": 37.96794891357422,
+    "kid_mean": 0.031097600236535072,
+    "kid_std": 0.0015903468010947108,
+    "generation_seconds": 574.3
+  }
+]

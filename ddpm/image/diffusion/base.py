@@ -22,7 +22,8 @@ class BaseSchedule(ABC):
     def training_target(
         self, x_0: torch.Tensor, t: torch.Tensor, eps: torch.Tensor
     ) -> torch.Tensor:
-        """What the network regresses onto: eps for every diffusion schedule (DDPM Eq. 14)."""
+        """What the network regresses onto: eps for every diffusion schedule (DDPM Eq. 14).
+        ``RectifiedFlowSchedule`` overrides it with a velocity."""
         return eps
 
 
@@ -41,9 +42,10 @@ class BaseSampler(ABC):
         config: Config,
         num_steps: int,
     ) -> torch.Tensor:
-        """The reverse process: noise x (B, C, H, W) -> samples (B, C, H, W). Each sampler builds
-        its own time grid from ``num_steps`` (``generate_timestamps``) and calls the model
-        exactly ``num_steps`` times."""
+        """The reverse process: x, N(0, I) noise (B, C, H, W) -> samples (B, C, H, W). Each
+        sampler maps x onto its own prior (only VE rescales it), builds its own time grid from
+        ``num_steps`` (``generate_timestamps``) and calls the model exactly ``num_steps`` times,
+        plus the corrector's calls for PC."""
 
     @abstractmethod
     def generate_timestamps(self, num_steps: int) -> list[Any]:
@@ -60,7 +62,8 @@ def predict_noise(
 ) -> torch.Tensor:
     """eps_theta(x, t), guided when the config has guidance and labels are given: Ho & Salimans
     2022, Eq. 6, with omega = 1 + w. x: (B, C, H, W); t_batch: (B,); lbl_batch: (B,) long or None
-    -> eps (B, C, H, W). Every sampler calls the model only through this."""
+    -> eps (B, C, H, W), or the velocity for rectified flow. Every sampler calls the model only
+    through this."""
     eps: torch.Tensor
     if config.guidance is not None and lbl_batch is not None:
         assert config.omega_classifier_free is not None
