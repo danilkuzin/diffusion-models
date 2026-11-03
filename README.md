@@ -57,7 +57,8 @@ The model has 770K parameters, about 2% of Ho et al.'s 35.7M, so that it trains 
 | Euler | 10 | 10 | 48.68 | 0.0495 | The VP ODE at 10 steps: 172.41; DDIM: 44.09 |
 | Euler | 20 | 20 | 42.29 | 0.0405 | |
 | Euler | 50 | 50 | 38.97 | 0.0339 | |
-| Euler | 100 | 100 | **37.97** | **0.0311** | Ties the VP ODE's 1000 calls; DDIM at 100: 35.84 |
+| Euler | 100 | 100 | 37.97 | 0.0311 | FID within noise of 1000 steps, KID not; DDIM at 100: 35.84 |
+| Euler | 1000 | 1000 | **37.34** | **0.0284** | The best flow row: 1.46 FID behind DDPM; ties the VP ODE on FID, not on KID |
 
 - **Protocol.** EMA weights at epoch 200 of each table's config; 12,800 samples against all 50,000 training images. FID at this size is relative: it ranks runs in this repo, and doesn't compare with published numbers. For scale, two disjoint parts of the training set score 2.76, the test split 3.15, and pure noise 451 ([calibration](docs/evaluation.md#calibration)).
 - **Noise.** Over sampling seeds, FID's std is 0.33 and KID's 0.0003, so a FID gap under about 0.7 is not a result.

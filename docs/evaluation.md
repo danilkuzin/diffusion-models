@@ -133,5 +133,6 @@ python -m ddpm.image.compare --root /data \
     --variant flow_20=configs/image/flow.yaml,steps=20 \
     --variant flow_50=configs/image/flow.yaml,steps=50 \
     --variant flow_100=configs/image/flow.yaml,steps=100 \
+    --variant flow_1000=configs/image/flow.yaml \
     --num-fid-batches 100 --max-real-batches 391 --out compare_flow.json
 ```

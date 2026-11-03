@@ -131,5 +131,23 @@
     "kid_mean": 0.031097600236535072,
     "kid_std": 0.0015903468010947108,
     "generation_seconds": 574.3
+  },
+  {
+    "variant": "flow_1000",
+    "params": 770403,
+    "sampler": "flow_euler",
+    "num_sampler_steps": 1000,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/flow.yaml"
+    },
+    "fid": 37.3421745300293,
+    "kid_mean": 0.02840203233063221,
+    "kid_std": 0.0014484216226264834,
+    "generation_seconds": 4089.5
   }
 ]
