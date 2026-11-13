@@ -57,8 +57,8 @@ All three use one recipe, tuned on the discrete model: Adam at a constant learni
 
 - **EMA.** After each step, $\theta_\text{EMA} \leftarrow \lambda\, \theta_\text{EMA} + (1 - \lambda)\, \theta$ with $\lambda = 0.999$, over the trainable parameters. Evaluation uses the EMA weights.
 - **Classifier-free guidance.** Training drops each label to the null class with probability 0.1 (Ho & Salimans, Alg. 1).
-- **Validation loss.** Every 5 epochs, the training loss on the test split, for both the raw and the EMA weights, with a fixed $(t, \varepsilon)$ drawn from its own RNG, so it doesn't perturb training. It isn't comparable across forward processes: flow's target $x_0 - \varepsilon$ has variance $1 + \mathrm{Var}(x_0)$, not 1.
-- **Loss per timestep range.** The training loss is also logged per tenth of the time range. Its mean isn't comparable across schedules, but these ten curves show a schedule that wastes training on near-pure noise ([tuning](tuning.md#appendix-before-the-ladder)).
+- **Validation loss.** Every 5 epochs, the training loss on the test split, for both the raw and the EMA weights, with a fixed $(t, \varepsilon)$ drawn from its own RNG, so it does not perturb training. It is not comparable across forward processes: flow's target $x_0 - \varepsilon$ has variance $1 + \mathrm{Var}(x_0)$, not 1.
+- **Loss per timestep range.** The training loss is also logged per tenth of the time range. Its mean is not comparable across schedules, but these ten curves reveal a schedule that spends most training steps on near-pure noise ([tuning](tuning.md#appendix-before-the-ladder)).
 
 ## Samplers
 
@@ -85,7 +85,7 @@ share its marginals $p_t$. The network supplies the score as $\nabla_x \log p_t 
 
 ## Tests and math
 
-The tests check the repo's own math and its asymptotics, not library behaviour. `pytest` runs in seconds on a CPU. `pytest --viz` makes each test also draw what it checks, and `make figures` copies the drawings into `docs/figures/`, so the figures can't drift from the code.
+The tests check the repo's own math and its asymptotics, not library behaviour. `pytest` runs in seconds on a CPU. `pytest --viz` makes each test also draw what it checks, and `make figures` copies the drawings into `docs/figures/`, so the figures cannot diverge from the code.
 
 ### Schedules run from data to noise
 
@@ -124,7 +124,7 @@ With $\varepsilon^\star$ in place of the network, any error left is the sampler'
   $$\mathrm{std}(x_{t'}) = \lVert a_{t'} \rVert \cos(\theta_t - \theta_{t'}) \le \lVert a_{t'} \rVert,$$
   with equality only when $t' = t$ (Cauchy–Schwarz). Each step loses a factor $\cos\Delta\theta$, so few-step DDIM undershoots the data's spread. With $n$ steps, $\prod_k \cos\Delta\theta_k \approx \exp(-\tfrac12 \sum_k \Delta\theta_k^2) = 1 - O(1/n)$, so the shortfall vanishes as $n$ grows.
 
-**Test.** Uses a small $s$, so clipping doesn't fire. DDPM's std at 1000 steps matches $\sqrt{v_t}$ within sampling noise. DDIM's at 10 and 50 steps follows the product of cosines at every step, and ends further below $s$ at 10 steps than at 50.
+**Test.** Uses a small $s$, so clipping is never triggered. DDPM's std at 1000 steps matches $\sqrt{v_t}$ within sampling noise. DDIM's at 10 and 50 steps follows the product of cosines at every step, and ends further below $s$ at 10 steps than at 50.
 
 **Figure.** The std of the input to each model call, and its ratio to $\sqrt{v_t}$. DDIM's ratio starts slightly above 1, because its grid starts at $t = T - T/n$, as in the DDIM reference code, where $\mathcal N(0, I)$ is a little too wide.
 
@@ -138,13 +138,13 @@ $$\tilde\varepsilon = \frac{x_t - \sqrt{\bar\alpha_t}\, \mathrm{clip}(\hat x_0)}
 
 By construction, $\sqrt{\bar\alpha_t}\, \mathrm{clip}(\hat x_0) + \sqrt{1 - \bar\alpha_t}\, \tilde\varepsilon = x_t$.
 
-**Test.** An out-of-range $\hat x_0$ lands on $\pm 1$, an in-range one is unchanged, and the pair still reconstructs $x_t$.
+**Test.** An out-of-range $\hat x_0$ is mapped to $\pm 1$, an in-range one is unchanged, and the pair still reconstructs $x_t$.
 
 **Figure.** Each pixel's $x_t$ fixes a line in the $(\hat x_0, \varepsilon)$ plane, and clipping moves along it.
 
 ![Static thresholding](figures/test_sample_clipping_clamps_pred_x0_and_keeps_x_t.png)
 
-The VP-SDE samplers threshold the same way, with $a(t)$ and $s(t)$ in place of $\sqrt{\bar\alpha_t}$ and $\sqrt{1 - \bar\alpha_t}$, and the flow sampler clamps its predicted endpoint $x_t + (1 - t)\, \hat v$. The thresholding is this repo's: the score SDE code doesn't clip, and neither does the VE sampler here.
+The VP-SDE samplers threshold the same way, with $a(t)$ and $s(t)$ in place of $\sqrt{\bar\alpha_t}$ and $\sqrt{1 - \bar\alpha_t}$, and the flow sampler clamps its predicted endpoint $x_t + (1 - t)\, \hat v$. The thresholding is this repo's: the score SDE code does not clip, and neither does the VE sampler here.
 
 ### Continuous schedules run from data to noise
 
@@ -177,7 +177,7 @@ $$\frac{dv}{dt} = 2 f(t)\, v + g(t)^2$$
 - **Euler–Maruyama** on Eq. 6, from $t$ to $t - \Delta t$, scales $x$ by $1 - \Delta t\, (f + g^2 / v)$ and adds noise of variance $g^2 \Delta t$ (none on the last step).
 - **The probability-flow ODE** (Eq. 13) halves the score term and adds nothing: it scales $x$ by $1 - \Delta t\, (f + \tfrac12 g^2 / v)$.
 
-So the samples' std follows a recursion in closed form. Both samplers reach $s_d$ as the steps grow, but with few steps the ODE stays far closer: at 10 steps it ends at 0.85 of $s_d$, Euler–Maruyama at 0.53. The trained VP model orders them the same way ([README](../README.md#results)).
+So the samples' std follows a recursion in closed form. Both samplers reach $s_d$ as the steps grow, but with few steps the ODE remains much closer: at 10 steps it ends at 0.85 of $s_d$, Euler–Maruyama at 0.53. The trained VP model orders them the same way ([README](../README.md#results)).
 
 **Test.** Runs Euler–Maruyama (1000 and 10 steps), the ODE (100 and 10) and VE's Euler–Maruyama (1000 steps, from $\mathcal N(0, \sigma_\text{max}^2 I)$) with $\varepsilon^\star$, and checks the std at every call against the recursion: within sampling noise for the SDEs, to $10^{-3}$ for the ODE.
 
@@ -191,7 +191,7 @@ So the samples' std follows a recursion in closed form. Both samplers reach $s_d
 
 $$V = v\,(1 + r^2),$$
 
-not $v$: unadjusted Langevin leaves the std $\sqrt{1 + r^2}$, 1.3% too wide at $r = 0.16$. (The paper's Algorithm 5 also scales $e$ by $\alpha_i = 1 - \beta_i \approx 1$; this repo doesn't.)
+not $v$: unadjusted Langevin leaves the std $\sqrt{1 + r^2}$, 1.3% too wide at $r = 0.16$. (The paper's Algorithm 5 also scales $e$ by $\alpha_i = 1 - \beta_i \approx 1$; this repo does not.)
 
 **Test.** Starts at half and at twice the right std, runs 150 corrector steps with $\varepsilon^\star$, and checks the std against the recursion at every step and against the fixed point at the end. A batch-wide norm, or $\lVert x \rVert$ in place of $\lVert \hat s \rVert$, would move the fixed point.
 

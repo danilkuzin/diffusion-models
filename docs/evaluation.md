@@ -12,7 +12,7 @@ With $\mu$ and $\Sigma$ estimated from finite samples, FID is biased upwards: tw
 
 KID is the squared maximum mean discrepancy between the two feature sets under the polynomial kernel $k(x, y) = (x^\top y / d + 1)^3$, averaged over random subsets. It is unbiased, and comes with its spread across subsets (`kid_std` in the results).
 
-The two can rank close variants differently: at 250 DDIM steps, FID ties DDIM with DDPM while KID ranks DDIM better ([README](../README.md#results)). Report both, and treat a claim that only one of them supports as a claim about that metric.
+The two can rank close variants differently, so both are reported.
 
 ## Protocol
 
@@ -58,7 +58,7 @@ The same weights, scored at five sampling seeds:
 
 On the full protocol, a gap under about 0.7 FID ($2\sigma$) is not a result.
 
-Sampling is not the largest source of noise. Raw (non-EMA) checkpoints of one run differ by 3–19 FID, while the EMA weights of two independent training runs differ by 0.1–0.5 ([tuning](tuning.md#sources-of-noise)). Compare EMA weights, or several checkpoints, never one raw checkpoint against another.
+Sampling is not the largest source of noise. Raw (non-EMA) checkpoints of one run differ by 3–19 FID, while the EMA weights of two independent training runs differ by 0.1–0.5 ([tuning](tuning.md#sources-of-noise)). On the full protocol, three checkpoints of the baseline span 9.33 FID on raw weights and 0.25 on EMA ([README](../README.md#results)). Compare EMA weights, or several checkpoints, never one raw checkpoint against another.
 
 ## Sample preparation
 
@@ -87,16 +87,20 @@ python -m ddpm.image.compare --root /data \
 - **Common random numbers.** Every variant is reseeded before scoring, so all the variants in one invocation share their starting noise and real images. Their differences are less noisy than independent scores would be.
 - **The default budget is small:** 20 generated batches against 20 real ones. `--num-fid-batches 100 --max-real-batches 391` matches the full protocol (391 batches of 128 cover the 50,000 training images).
 - **Resumable.** `--out` is rewritten after every variant, and a re-run reuses the rows already in it (`--fresh` re-scores everything).
-- **Across invocations.** Reseeding makes every variant at a given seed draw the same starting noise and real images, whichever invocation it runs in, so rows from separate runs at one seed share them too. Timings don't carry over: the same 1000 DDPM calls took 70 minutes in one Colab session and 85 in another.
+- **Across invocations.** On one machine, reseeding makes every variant at a given seed draw the same starting noise and real images, whichever invocation it runs in. Another GPU or torch version can change the random stream.
 - **Cost is model calls, not steps.** Predictor–corrector makes two per step, and classifier-free guidance doubles every call. Compare samplers at equal calls.
 
 Before calling a gap a result, check that both sides used the same protocol and EMA weights, and that the gap is above $2\sigma$ for that protocol.
 
-The README's DDIM rows are one such run, on the full protocol at seed 0 ([`results/compare_ddim.json`](../results/compare_ddim.json)). Its DDPM row reproduces the baseline's seed-0 score, 35.88. Its timings include Inception's fixed cost per batch, so the speed-ups trail the step ratios: 13× for 20× fewer steps. The VP-SDE and flow rows are two more runs at seed 0, on their own checkpoints ([`results/compare_vpsde.json`](../results/compare_vpsde.json), [`results/compare_flow.json`](../results/compare_flow.json)); the VP run's DDPM row reproduces 35.88 again. All of these rows take their noise level from the DDPM baseline's seed stds, 0.33 FID and 0.0003 KID; their own were not measured.
+The README's DDIM rows are one such run, on the full protocol at seed 0 ([`results/compare_ddim.json`](../results/compare_ddim.json)). Its DDPM row reproduces the baseline's seed-0 score, 35.88. Its timings include Inception's fixed cost per batch, so the speed-ups are smaller than the step ratios: 13× for 20× fewer steps. The VP-SDE and flow rows are two more runs at seed 0, on their own checkpoints ([`results/compare_vpsde.json`](../results/compare_vpsde.json), [`results/compare_flow.json`](../results/compare_flow.json)); the VP run's DDPM row reproduces 35.88 again.
+
+The EMA, DiT and guidance runs ([`results/compare_ema.json`](../results/compare_ema.json), [`results/compare_dit.json`](../results/compare_dit.json), [`results/compare_cfg.json`](../results/compare_cfg.json)) ran on a second GPU, from the `v0.2.0` tag. Their UNet references, DDIM at 100 steps and DDPM, were scored on that GPU too ([`results/compare_published_check.json`](../results/compare_published_check.json)); the DiT table's UNet rows at 10 and 50 steps come from the DDIM run.
+
+All of these rows take their noise level from the DDPM baseline's seed stds, 0.33 FID and 0.0003 KID; their own were not measured.
 
 ### The README's runs
 
-One `ddpm.image.compare` run per results table, each on the full protocol at seed 0. The VP run's `ddpm` variant is the anchor that reproduces the seed-0 DDPM row.
+One `ddpm.image.compare` run per results table, each on the full protocol at seed 0. The VP run's `ddpm` variant reproduces the seed-0 DDPM row, which connects that table to the baseline. The last four run from a checkout of the `v0.2.0` tag.
 
 ```bash
 # The seed-0 DDPM and DDIM rows
@@ -135,4 +139,38 @@ python -m ddpm.image.compare --root /data \
     --variant flow_100=configs/image/flow.yaml,steps=100 \
     --variant flow_1000=configs/image/flow.yaml \
     --num-fid-batches 100 --max-real-batches 391 --out compare_flow.json
+
+# The UNet references on the second GPU
+python -m ddpm.image.compare --root /data \
+    --variant flow_100=configs/image/flow.yaml,steps=100 \
+    --variant pfode_100=configs/image/vpsde.yaml,sampler=pfode,steps=100 \
+    --variant ddim_100=configs/image/ddpm.yaml,sampler=ddim,eta=0.0,steps=100 \
+    --variant ddpm=configs/image/ddpm.yaml \
+    --num-fid-batches 100 --max-real-batches 391 --out compare_published_check.json
+
+# EMA against raw weights
+python -m ddpm.image.compare --root /data \
+    --variant ema_190=configs/image/ddpm.yaml,sampler=ddim,eta=0.0,steps=100,epoch=190 \
+    --variant raw_190=configs/image/ddpm.yaml,sampler=ddim,eta=0.0,steps=100,epoch=190,ema=false \
+    --variant ema_195=configs/image/ddpm.yaml,sampler=ddim,eta=0.0,steps=100,epoch=195 \
+    --variant raw_195=configs/image/ddpm.yaml,sampler=ddim,eta=0.0,steps=100,epoch=195,ema=false \
+    --variant ema_199=configs/image/ddpm.yaml,sampler=ddim,eta=0.0,steps=100,epoch=199 \
+    --variant raw_199=configs/image/ddpm.yaml,sampler=ddim,eta=0.0,steps=100,epoch=199,ema=false \
+    --num-fid-batches 100 --max-real-batches 391 --out compare_ema.json
+
+# UNet against DiT
+python -m ddpm.image.compare --root /data \
+    --variant dit_ddim_10=configs/image/dit.yaml,sampler=ddim,eta=0.0,steps=10 \
+    --variant dit_ddim_50=configs/image/dit.yaml,sampler=ddim,eta=0.0,steps=50 \
+    --variant dit_ddim_100=configs/image/dit.yaml,sampler=ddim,eta=0.0,steps=100 \
+    --variant dit_ddpm=configs/image/dit.yaml \
+    --num-fid-batches 100 --max-real-batches 391 --out compare_dit.json
+
+# Classifier-free guidance
+python -m ddpm.image.compare --root /data \
+    --variant cfg_omega_0=configs/image/ddpm.yaml,run_name=ddpm_cfg,omega=0,sampler=ddim,eta=0.0,steps=100 \
+    --variant cfg_omega_1=configs/image/ddpm.yaml,run_name=ddpm_cfg,omega=1,sampler=ddim,eta=0.0,steps=100 \
+    --variant cfg_omega_3=configs/image/ddpm.yaml,run_name=ddpm_cfg,omega=3,sampler=ddim,eta=0.0,steps=100 \
+    --variant cfg_omega_5=configs/image/ddpm.yaml,run_name=ddpm_cfg,omega=5,sampler=ddim,eta=0.0,steps=100 \
+    --num-fid-batches 100 --max-real-batches 391 --out compare_cfg.json
 ```

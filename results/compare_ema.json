@@ -1,0 +1,137 @@
+[
+  {
+    "variant": "ema_190",
+    "params": 770403,
+    "sampler": "ddim",
+    "num_sampler_steps": 100,
+    "omega": null,
+    "epoch": 190,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/ddpm.yaml",
+      "sampler": "ddim",
+      "eta": "0.0",
+      "steps": "100",
+      "epoch": "190"
+    },
+    "fid": 35.828983306884766,
+    "kid_mean": 0.02607669308781624,
+    "kid_std": 0.001492373296059668,
+    "generation_seconds": 166.1
+  },
+  {
+    "variant": "raw_190",
+    "params": 770403,
+    "sampler": "ddim",
+    "num_sampler_steps": 100,
+    "omega": null,
+    "epoch": 190,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/ddpm.yaml",
+      "sampler": "ddim",
+      "eta": "0.0",
+      "steps": "100",
+      "epoch": "190",
+      "ema": "false"
+    },
+    "fid": 41.70441818237305,
+    "kid_mean": 0.030454246327280998,
+    "kid_std": 0.0016487766988575459,
+    "generation_seconds": 168.2
+  },
+  {
+    "variant": "ema_195",
+    "params": 770403,
+    "sampler": "ddim",
+    "num_sampler_steps": 100,
+    "omega": null,
+    "epoch": 195,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/ddpm.yaml",
+      "sampler": "ddim",
+      "eta": "0.0",
+      "steps": "100",
+      "epoch": "195"
+    },
+    "fid": 35.58356475830078,
+    "kid_mean": 0.02618086338043213,
+    "kid_std": 0.001530958223156631,
+    "generation_seconds": 159.5
+  },
+  {
+    "variant": "raw_195",
+    "params": 770403,
+    "sampler": "ddim",
+    "num_sampler_steps": 100,
+    "omega": null,
+    "epoch": 195,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/ddpm.yaml",
+      "sampler": "ddim",
+      "eta": "0.0",
+      "steps": "100",
+      "epoch": "195",
+      "ema": "false"
+    },
+    "fid": 48.268646240234375,
+    "kid_mean": 0.0359954833984375,
+    "kid_std": 0.0017965766601264477,
+    "generation_seconds": 155.7
+  },
+  {
+    "variant": "ema_199",
+    "params": 770403,
+    "sampler": "ddim",
+    "num_sampler_steps": 100,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/ddpm.yaml",
+      "sampler": "ddim",
+      "eta": "0.0",
+      "steps": "100",
+      "epoch": "199"
+    },
+    "fid": 35.6730842590332,
+    "kid_mean": 0.026114093139767647,
+    "kid_std": 0.0015216947067528963,
+    "generation_seconds": 155.9
+  },
+  {
+    "variant": "raw_199",
+    "params": 770403,
+    "sampler": "ddim",
+    "num_sampler_steps": 100,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/ddpm.yaml",
+      "sampler": "ddim",
+      "eta": "0.0",
+      "steps": "100",
+      "epoch": "199",
+      "ema": "false"
+    },
+    "fid": 38.93989562988281,
+    "kid_mean": 0.028109142556786537,
+    "kid_std": 0.0015017823316156864,
+    "generation_seconds": 155.9
+  }
+]

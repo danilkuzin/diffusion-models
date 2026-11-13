@@ -1,0 +1,45 @@
+--- sample 0 (num_steps=256, step 30000) ---
+e canst herb?
+
+BAUCKING:
+Woe wherevors I said at men?
+
+HASTING:
+O, shall.
+
+LUMator:
+Now, now, for this is, and these true, when they my lend.
+Merceit I beseech them me;
+Concleague, they fiece ere they say, change,
+No emedy, and suredinness to ellow.
+
+GREEN
+--- sample 1 (num_steps=256, step 30000) ---
+a the cloy and mock me are;
+Be fined am not, he is here: but extrempts, his desorts me
+Now that late our vilendly heir.
+Rthiver'd highor numberlion in breath ne word.
+This an ior's royal blent he wont.
+Parus; Ir dare ink igent Bore's menward
+All ny king to
+--- sample 2 (num_steps=256, step 30000) ---
+make the land sprength in fire you frant on
+But mean, Clifford, march your night of a sist.
+
+KING DWAR  VI:
+I sight nor ove that tumble an oath the ladge force!
+
+KING RICHARD  III:
+Expect, lean the went worthy third be not shall to joy!
+
+BUCKINGHAM:
+Such k
+--- sample 3 (num_steps=256, step 30000) ---
+e true life, Euteproving too house court;
+But what it is thy nea! What, but,
+For now! will he so not part to away to wail,
+His given name, and voice still but as I slain.
+
+ANGELO:
+Am most note a truth as God: we hus appeness
+Our line more. For when steats 

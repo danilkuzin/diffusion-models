@@ -1,0 +1,83 @@
+[
+  {
+    "variant": "dit_ddim_10",
+    "params": 765132,
+    "sampler": "ddim",
+    "num_sampler_steps": 10,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/dit.yaml",
+      "sampler": "ddim",
+      "eta": "0.0",
+      "steps": "10"
+    },
+    "fid": 53.47746658325195,
+    "kid_mean": 0.05001256242394447,
+    "kid_std": 0.002270239172503352,
+    "generation_seconds": 64.5
+  },
+  {
+    "variant": "dit_ddim_50",
+    "params": 765132,
+    "sampler": "ddim",
+    "num_sampler_steps": 50,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/dit.yaml",
+      "sampler": "ddim",
+      "eta": "0.0",
+      "steps": "50"
+    },
+    "fid": 45.447593688964844,
+    "kid_mean": 0.03973212093114853,
+    "kid_std": 0.002023479901254177,
+    "generation_seconds": 169.8
+  },
+  {
+    "variant": "dit_ddim_100",
+    "params": 765132,
+    "sampler": "ddim",
+    "num_sampler_steps": 100,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/dit.yaml",
+      "sampler": "ddim",
+      "eta": "0.0",
+      "steps": "100"
+    },
+    "fid": 44.715667724609375,
+    "kid_mean": 0.037359822541475296,
+    "kid_std": 0.0019007371738553047,
+    "generation_seconds": 294.7
+  },
+  {
+    "variant": "dit_ddpm",
+    "params": 765132,
+    "sampler": "ddpm",
+    "num_sampler_steps": 1000,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/dit.yaml"
+    },
+    "fid": 46.23887252807617,
+    "kid_mean": 0.03509310260415077,
+    "kid_std": 0.0013975109905004501,
+    "generation_seconds": 2443.5
+  }
+]

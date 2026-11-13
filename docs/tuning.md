@@ -1,8 +1,8 @@
 # Tuning a small DDPM
 
-This page records how the baseline config was chosen, and how much one FID score varies. The baseline is a 770K-parameter UNet trained for 200 epochs (78K steps), about 2% of Ho et al.'s parameters and 10% of their training steps. It scores **FID 35.77 ± 0.33**; the distance to their 3.17 is model size and compute. Every number below comes from a recorded run.
+This page records how the baseline config was chosen, and how much one FID score varies. The baseline is a 770K-parameter UNet trained for 200 epochs (78K steps), about 2% of Ho et al.'s parameters and 10% of their training steps. It scores **FID 35.77 ± 0.33**; the difference from their 3.17 reflects model size and compute. Every number below comes from a recorded run.
 
-On the full protocol, the ladder below went from 70.51 (the corrected 16-channel config) to 45.90 (32 channels) to 35.78 (EMA and learning rate $10^{-3}$), and a retrained 5-seed run of the winner scored 35.77 ± 0.33. The fixes made before the ladder are in the [appendix](#appendix-before-the-ladder).
+On the full protocol, the ladder below went from 70.51 (the corrected 16-channel config) to 45.90 (32 channels) to 35.78 (EMA and learning rate $10^{-3}$), and the selected configuration, retrained and scored over five seeds, reached 35.77 ± 0.33. The fixes made before the ladder are in the [appendix](#appendix-before-the-ladder).
 
 ## Protocols
 
@@ -25,10 +25,10 @@ The proxy costs 1/200 of the full protocol's model calls: 50 sampling steps inst
 | Re-baseline | The corrected config: 16 channels (231K params), cosine schedule, lr $2 \times 10^{-4}$ | 68.59 (full) | The reference |
 | Noise floor | Nothing trained; five sampling seeds on that checkpoint | std 0.87 (20-batch) | The threshold for the ladder |
 | Learning rate | 30 epochs each at $10^{-4}$ / $2 \times 10^{-4}$ / $3 \times 10^{-4}$ / $10^{-3}$ | 214.8 / 173.2 / 143.6 / 145.8 (proxy) | $3 \times 10^{-4}$. At 200 epochs it tied $2 \times 10^{-4}$: 70.51 against 68.59 (full) |
-| Width | 16 / 32 / 64 channels | 95.1 / 74.1 / 69.3 (proxy); 32 channels 45.90 (full) | 32 channels, on cost (below) |
+| Width | 16 / 32 / 64 channels | 95.1 / 74.1 / 69.3 (proxy); 32 channels 45.90 (full) | 32 channels, for its cost (below) |
 | Length | 200 → 400 epochs | No gain (proxy); raw checkpoints differ by up to 18 FID | Stay at 200 |
 | EMA | EMA 0.999 at lr $3 \times 10^{-4}$ and $10^{-3}$ | EMA better at every checkpoint; $10^{-3}$ better by 1.5–2.7 (proxy); 35.78 (full) | EMA on, lr $10^{-3}$ |
-| Final | Retrain the winner from scratch, score 5 seeds | **35.77 ± 0.33** (full) | The baseline, [`configs/image/ddpm.yaml`](../configs/image/ddpm.yaml) |
+| Final | Retrain the selected configuration from scratch, score 5 seeds | **35.77 ± 0.33** (full) | The baseline, [`configs/image/ddpm.yaml`](../configs/image/ddpm.yaml) |
 
 ### Width
 
@@ -90,7 +90,7 @@ On a T4, training takes about 2.6 h (200 epochs at ~47 s, plus checkpoints and p
 <details>
 <summary>A misconfigured schedule, and a regression from three simultaneous changes</summary>
 
-### A schedule that spent most of training on noise
+### A schedule that concentrated training on near-pure noise
 
 The first baseline, a 231K-parameter UNet, used $\beta_t$ from 0.01 to 0.1, ten times Ho et al.'s $10^{-4}$ to 0.02. An input with $\bar\alpha_t < 0.01$ keeps less than a tenth of the image's amplitude; under this schedule, 77% of uniformly drawn training timesteps were like that. Fixing the two endpoints, then switching to cosine, changed nothing else:
 
@@ -100,7 +100,7 @@ The first baseline, a 231K-parameter UNet, used $\beta_t$ from 0.01 to 0.1, ten 
 | Linear, $\beta_t$ $10^{-4}$ → 0.02 | $t = 260$ | 33% | 92.84 |
 | Cosine | $t = 496$ | 6.5% | 77.00 |
 
-On the full protocol, the cosine run scores 60.54. The 20-batch protocol reads higher because of finite-sample bias ([evaluation](evaluation.md#calibration)).
+On the full protocol, the cosine run scores 60.54. The 20-batch protocol gives higher scores because of finite-sample bias ([evaluation](evaluation.md#calibration)).
 
 The misconfigured run had a lower training loss than the corrected ones. Where $\bar\alpha_t \approx 0$, $x_t \approx \varepsilon$, so predicting the noise means returning the input: a near-zero loss that lowers the mean. **Mean training loss is not comparable across schedules.** The loss per tenth of the timestep range, which the trainer logs as `train/mse_loss_bucket_0` to `_9`, shows the problem: under this schedule, buckets 1–9 sit near zero.
 

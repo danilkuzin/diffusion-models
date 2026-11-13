@@ -1,0 +1,94 @@
+[
+  {
+    "variant": "cfg_omega_0",
+    "params": 771107,
+    "sampler": "ddim",
+    "num_sampler_steps": 100,
+    "omega": 0.0,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/ddpm.yaml",
+      "run_name": "ddpm_cfg",
+      "omega": "0",
+      "sampler": "ddim",
+      "eta": "0.0",
+      "steps": "100"
+    },
+    "fid": 39.64691925048828,
+    "kid_mean": 0.031059665605425835,
+    "kid_std": 0.001632982981391251,
+    "generation_seconds": 277.7
+  },
+  {
+    "variant": "cfg_omega_1",
+    "params": 771107,
+    "sampler": "ddim",
+    "num_sampler_steps": 100,
+    "omega": 1.0,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/ddpm.yaml",
+      "run_name": "ddpm_cfg",
+      "omega": "1",
+      "sampler": "ddim",
+      "eta": "0.0",
+      "steps": "100"
+    },
+    "fid": 32.37865447998047,
+    "kid_mean": 0.023771660402417183,
+    "kid_std": 0.0016035609878599644,
+    "generation_seconds": 275.1
+  },
+  {
+    "variant": "cfg_omega_3",
+    "params": 771107,
+    "sampler": "ddim",
+    "num_sampler_steps": 100,
+    "omega": 3.0,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/ddpm.yaml",
+      "run_name": "ddpm_cfg",
+      "omega": "3",
+      "sampler": "ddim",
+      "eta": "0.0",
+      "steps": "100"
+    },
+    "fid": 18.981386184692383,
+    "kid_mean": 0.0063567874021828175,
+    "kid_std": 0.0005721701891161501,
+    "generation_seconds": 275.0
+  },
+  {
+    "variant": "cfg_omega_5",
+    "params": 771107,
+    "sampler": "ddim",
+    "num_sampler_steps": 100,
+    "omega": 5.0,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/ddpm.yaml",
+      "run_name": "ddpm_cfg",
+      "omega": "5",
+      "sampler": "ddim",
+      "eta": "0.0",
+      "steps": "100"
+    },
+    "fid": 24.721691131591797,
+    "kid_mean": 0.006544983014464378,
+    "kid_std": 0.00050147227011621,
+    "generation_seconds": 275.1
+  }
+]

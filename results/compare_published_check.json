@@ -1,0 +1,80 @@
+[
+  {
+    "variant": "flow_100",
+    "params": 770403,
+    "sampler": "flow_euler",
+    "num_sampler_steps": 100,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/flow.yaml",
+      "steps": "100"
+    },
+    "fid": 38.084110260009766,
+    "kid_mean": 0.031016895547509193,
+    "kid_std": 0.0016281750285997987,
+    "generation_seconds": 169.4
+  },
+  {
+    "variant": "pfode_100",
+    "params": 770403,
+    "sampler": "pfode",
+    "num_sampler_steps": 100,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/vpsde.yaml",
+      "sampler": "pfode",
+      "steps": "100"
+    },
+    "fid": 42.957550048828125,
+    "kid_mean": 0.030232643708586693,
+    "kid_std": 0.0013941362267360091,
+    "generation_seconds": 173.7
+  },
+  {
+    "variant": "ddim_100",
+    "params": 770403,
+    "sampler": "ddim",
+    "num_sampler_steps": 100,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/ddpm.yaml",
+      "sampler": "ddim",
+      "eta": "0.0",
+      "steps": "100"
+    },
+    "fid": 35.6730842590332,
+    "kid_mean": 0.026114093139767647,
+    "kid_std": 0.0015216947067528963,
+    "generation_seconds": 176.8
+  },
+  {
+    "variant": "ddpm",
+    "params": 770403,
+    "sampler": "ddpm",
+    "num_sampler_steps": 1000,
+    "omega": null,
+    "epoch": 199,
+    "num_fid_batches": 100,
+    "max_real_batches": 391,
+    "seed": 0,
+    "spec": {
+      "config": "configs/image/ddpm.yaml"
+    },
+    "fid": 35.363529205322266,
+    "kid_mean": 0.025547277182340622,
+    "kid_std": 0.001338777830824256,
+    "generation_seconds": 1243.1
+  }
+]
