@@ -4,6 +4,7 @@ import torch
 import yaml
 from pydantic import (
     BaseModel,
+    ConfigDict,
     Field,
     NonNegativeFloat,
     NonNegativeInt,
@@ -13,7 +14,13 @@ from pydantic import (
 )
 
 
-class LinearScheduleConfig(BaseModel):
+class ConfigModel(BaseModel):
+    """Base of every image config: an unknown (e.g. misspelt) key is a load error."""
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class LinearScheduleConfig(ConfigModel):
     """DDPM's schedule (Ho et al. 2020, §4): beta linear from 1e-4 to 0.02 over T = 1000."""
 
     type: Literal["linear"] = "linear"
@@ -22,7 +29,7 @@ class LinearScheduleConfig(BaseModel):
     beta_end: PositiveFloat = 0.02
 
 
-class CosineScheduleConfig(BaseModel):
+class CosineScheduleConfig(ConfigModel):
     """Nichol & Dhariwal 2021, Eq. 17; ``s`` is its small offset near t = 0."""
 
     type: Literal["cosine"] = "cosine"
@@ -30,7 +37,7 @@ class CosineScheduleConfig(BaseModel):
     s: PositiveFloat = 0.008
 
 
-class VariancePreservingScheduleConfig(BaseModel):
+class VariancePreservingScheduleConfig(ConfigModel):
     """VP SDE (Song et al. 2021, score SDE Eq. 11): beta(t) linear from beta_min to beta_max on
     t in [0, 1]. The paper uses 0.1 and 20, DDPM's linear beta at N = 1000."""
 
@@ -39,7 +46,7 @@ class VariancePreservingScheduleConfig(BaseModel):
     beta_max: PositiveFloat
 
 
-class VarianceExplodingScheduleConfig(BaseModel):
+class VarianceExplodingScheduleConfig(ConfigModel):
     """VE SDE (score SDE Eq. 9): sigma(t) geometric from sigma_min to sigma_max. The paper uses
     0.01 and 50 on CIFAR-10."""
 
@@ -48,7 +55,7 @@ class VarianceExplodingScheduleConfig(BaseModel):
     sigma_max: PositiveFloat
 
 
-class SubVariancePreservingScheduleConfig(BaseModel):
+class SubVariancePreservingScheduleConfig(ConfigModel):
     """Sub-VP SDE (score SDE Eq. 12): the VP SDE's beta(t), with less noise injected."""
 
     type: Literal["sub_vp_sde"] = "sub_vp_sde"
@@ -56,13 +63,13 @@ class SubVariancePreservingScheduleConfig(BaseModel):
     beta_max: PositiveFloat
 
 
-class RectifiedFlowScheduleConfig(BaseModel):
+class RectifiedFlowScheduleConfig(ConfigModel):
     """Rectified flow's straight path from noise to data; it has no parameters."""
 
     type: Literal["rectified_flow"] = "rectified_flow"
 
 
-class DataConfig(BaseModel):
+class DataConfig(ConfigModel):
     batch_size: PositiveInt = 16
     num_channels: PositiveInt = 3
     height: PositiveInt = 32
@@ -75,35 +82,35 @@ class DataConfig(BaseModel):
         return (self.num_channels, self.height, self.width)
 
 
-class TrainConfig(BaseModel):
+class TrainConfig(ConfigModel):
     num_epochs: PositiveInt = 100
     lr: PositiveFloat = 2e-4
     grad_clip: PositiveFloat | None = None  # max gradient norm; None = no clipping
     eval_every_n_epochs: PositiveInt = 10
 
 
-class DDPMSamplerConfig(BaseModel):
+class DDPMSamplerConfig(ConfigModel):
     type: Literal["ddpm"] = "ddpm"
 
 
-class DDIMSamplerConfig(BaseModel):
+class DDIMSamplerConfig(ConfigModel):
     type: Literal["ddim"] = "ddim"
     # DDIM Eq. 16: 0 is deterministic, 1 gives the DDPM posterior variance
     eta: NonNegativeFloat = 0.0
 
 
-class EulerMaruyamaVPSamplerConfig(BaseModel):
+class EulerMaruyamaVPSamplerConfig(ConfigModel):
     """Euler-Maruyama on the reverse SDE (score SDE Eq. 6). "vp" is the VP family: VP or
     sub-VP."""
 
     type: Literal["euler_vp"] = "euler_vp"
 
 
-class EulerMaruyamaVESamplerConfig(BaseModel):
+class EulerMaruyamaVESamplerConfig(ConfigModel):
     type: Literal["euler_ve"] = "euler_ve"
 
 
-class PredictorCorrectorSamplerConfig(BaseModel):
+class PredictorCorrectorSamplerConfig(ConfigModel):
     """Score SDE App. G, VP family: num_iter Langevin corrector steps at signal-to-noise ratio
     alpha_snr after each predictor step. 0.16 is the paper's VE ratio (App. H); it tuned VP's
     per sampler (Table 5)."""
@@ -113,24 +120,24 @@ class PredictorCorrectorSamplerConfig(BaseModel):
     alpha_snr: PositiveFloat = 0.16
 
 
-class PFODESamplerConfig(BaseModel):
+class PFODESamplerConfig(ConfigModel):
     """Euler on the probability flow ODE (score SDE Eq. 13), VP family."""
 
     type: Literal["pfode"] = "pfode"
 
 
-class RectifiedFlowSamplerConfig(BaseModel):
+class RectifiedFlowSamplerConfig(ConfigModel):
     """Euler integration of the learned velocity field, t: 0 -> 1 (noise -> data)."""
 
     type: Literal["flow_euler"] = "flow_euler"
 
 
-class EMAConfig(BaseModel):
+class EMAConfig(ConfigModel):
     decay: PositiveFloat  # shadow <- decay * shadow + (1 - decay) * param
     update_freq: PositiveInt  # in batches
 
 
-class UNetModelConfig(BaseModel):
+class UNetModelConfig(ConfigModel):
     type: Literal["unet"] = "unet"
     num_ch: PositiveInt = 16
     num_groups: PositiveInt = 4
@@ -141,7 +148,7 @@ class UNetModelConfig(BaseModel):
     attention_stage_index: NonNegativeInt = 1  # the down/up stage that gets self-attention
 
 
-class DiTModelConfig(BaseModel):
+class DiTModelConfig(ConfigModel):
     type: Literal["dit"] = "dit"
     patch_size: PositiveInt = 2
     heads: PositiveInt = 2
@@ -183,7 +190,7 @@ AnySamplerConfig = (
 AnyModelConfig = UNetModelConfig | DiTModelConfig
 
 
-class Config(BaseModel):
+class Config(ConfigModel):
     # Names the run's checkpoint, log and plot directories (`ddpm.paths.Paths`). Not a path.
     run_name: str = "ddpm"
     noise_schedule: AnyScheduleConfig = Field(

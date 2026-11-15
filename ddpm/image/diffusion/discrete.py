@@ -55,15 +55,15 @@ class DiscreteSchedule(BaseSchedule):
 
         return x_t
 
-    def forward_per_step(self, x: torch.Tensor, beta: torch.Tensor, T: int) -> list[torch.Tensor]:
+    def forward_per_step(self, x: torch.Tensor) -> list[torch.Tensor]:
         """DDPM Eq. 2, one step at a time: x (B, C, H, W) -> [x_0, x_1, ..., x_T]."""
 
         x_steps = [x]
 
-        for t in range(T):
+        for t in range(self.config.T):
             dist = torch.distributions.Normal(
-                loc=torch.sqrt(1 - beta[t]) * x_steps[-1],
-                scale=torch.sqrt(beta[t]) * torch.ones_like(x_steps[-1]),
+                loc=torch.sqrt(1 - self.beta[t]) * x_steps[-1],
+                scale=torch.sqrt(self.beta[t]) * torch.ones_like(x_steps[-1]),
             )
             x_steps.append(dist.sample())  # type: ignore[no-untyped-call]
 
@@ -199,7 +199,7 @@ class DDIMSampler(BaseSampler):
     ) -> torch.Tensor:
         timestamps = self.generate_timestamps(num_steps)
         batch_size = x.shape[0]
-        device = config.device
+        device = x.device
 
         for t, s in zip(timestamps[:-1], timestamps[1:], strict=False):
             t_batch = torch.full(size=(batch_size,), fill_value=t, device=device, dtype=torch.long)

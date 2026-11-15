@@ -43,6 +43,8 @@ def apply_eval_overrides(
     sampler: str | None = None,
     eta: float | None = None,
     omega: float | None = None,
+    run_name: str | None = None,
+    num_ch: int | None = None,
 ) -> Config:
     """Eval-only overrides: they change how a checkpoint is sampled, never what was trained.
     ``omega`` turns guidance on, so a checkpoint trained without it fails to load."""
@@ -59,13 +61,21 @@ def apply_eval_overrides(
     if omega is not None:
         config.guidance = "classifier-free"
         config.omega_classifier_free = omega
+    if run_name is not None:
+        config.run_name = run_name
+    if num_ch is not None:
+        if not isinstance(config.model, UNetModelConfig):
+            raise ValueError("--num-ch only applies to a UNet model")
+        config.model.num_ch = num_ch
     return config
 
 
 def load_model(config: Config, paths: Paths, epoch: int, *, force_raw: bool = False) -> BaseModel:
     """``weights_<epoch>.pt`` -> model, with the EMA shadow over the raw weights when
     ``config.ema`` is set and not ``force_raw``."""
-    checkpoint = torch.load(f"{paths.weights_dir}/weights_{epoch}.pt", weights_only=True)
+    checkpoint = torch.load(
+        f"{paths.weights_dir}/weights_{epoch}.pt", weights_only=True, map_location=config.device
+    )
     model = create_model(config)
     model.load_state_dict(checkpoint["model_state_dict"])
     if config.ema is not None and not force_raw:
@@ -211,7 +221,11 @@ def find_nearest_image(
     x = torch.randn(
         [config.data.batch_size, *config.data.shape], dtype=torch.float, device=config.device
     )
-    lbl_batch = None
+    lbl_batch = (
+        torch.randint(0, config.data.num_classes, (config.data.batch_size,), device=config.device)
+        if config.guidance is not None
+        else None
+    )
 
     with torch.no_grad():
         samples = sampler.sample(diffusion_model, x, lbl_batch, config, num_sampler_steps)
@@ -273,23 +287,26 @@ if __name__ == "__main__":
         or args.num_ch is not None
         or args.num_sampler_steps != 1000
         or args.seed != 0
+        or args.num_fid_batches != 100
+        or args.max_real_batches is not None
     )
     if overridden and args.tag is None:
         parser.error(
             "--tag is required alongside --sampler/--omega/--no-ema/--epoch/--run-name/"
-            "--num-ch/--num-sampler-steps/a non-zero --seed, so results don't overwrite the "
-            "base config's eval_results file"
+            "--num-ch/--num-sampler-steps/a non-zero --seed/--num-fid-batches/--max-real-batches, "
+            "so results don't overwrite the base config's eval_results file"
         )
-    config = apply_eval_overrides(config, sampler=args.sampler, eta=args.eta, omega=args.omega)
+    config = apply_eval_overrides(
+        config,
+        sampler=args.sampler,
+        eta=args.eta,
+        omega=args.omega,
+        run_name=args.run_name,
+        num_ch=args.num_ch,
+    )
     # DDPM's sampler would raise on it too, but only after loading the model and data.
     if args.num_sampler_steps != 1000 and isinstance(config.sampler, DDPMSamplerConfig):
         parser.error("--num-sampler-steps doesn't apply to ddpm, which always runs all T steps")
-    if args.run_name is not None:
-        config.run_name = args.run_name
-    if args.num_ch is not None:
-        if not isinstance(config.model, UNetModelConfig):
-            raise ValueError("--num-ch only applies to a UNet model")
-        config.model.num_ch = args.num_ch
     paths = Paths.from_config(args.root, args.config, config.run_name, tag=args.tag)
 
     # One results file per seed. A single --seed keeps the plain <config>[_<tag>] name and

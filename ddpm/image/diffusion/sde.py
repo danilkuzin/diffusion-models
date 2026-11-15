@@ -17,6 +17,8 @@ from ddpm.image.config import (
 from ddpm.image.diffusion.base import BaseSampler, BaseSchedule, predict_noise
 from ddpm.image.models.base import BaseModel
 
+T_END = 1e-4  # the reverse grid's last time; the step onto it adds no noise
+
 
 class LinearContinuousSchedule(BaseSchedule):
     """A forward SDE dx = f(x, t) dt + g(t) dw on t in (0, 1], data at t = 0 (Song et al. 2021,
@@ -145,7 +147,7 @@ class SubVariancePreservingSchedule(VPFamilySchedule):
 
 
 class SDESampler(BaseSampler):
-    """Walks a float grid from t = 1 down to 1e-4, one model call per step."""
+    """Walks a float grid from t = 1 down to T_END, one model call per step."""
 
     @abstractmethod
     def reverse(self, x: torch.Tensor, t: float, eps: torch.Tensor, s: float) -> torch.Tensor:
@@ -162,7 +164,7 @@ class SDESampler(BaseSampler):
     ) -> torch.Tensor:
         timestamps = self.generate_timestamps(num_steps)
         batch_size = x.shape[0]
-        device = config.device
+        device = x.device
 
         for t, s in zip(timestamps[:-1], timestamps[1:], strict=False):
             t_batch = torch.full(
@@ -174,10 +176,10 @@ class SDESampler(BaseSampler):
         return x
 
     def generate_timestamps(self, num_steps: int) -> list[float]:
-        """num_steps + 1 points from 1 down to 1e-4, uniform in t, so num_steps model calls.
+        """num_steps + 1 points from 1 down to T_END, uniform in t, so num_steps model calls.
         The reference code stops at 1e-3 for VP and 1e-5 for VE (score SDE App. D.4). linspace
-        returns 1e-4 exactly, which the steps' last-step test ``s > 1e-4`` relies on."""
-        return list(numpy.linspace(1.0, 1e-4, num_steps + 1).tolist())
+        returns T_END exactly, which the steps' last-step test ``s > T_END`` relies on."""
+        return list(numpy.linspace(1.0, T_END, num_steps + 1).tolist())
 
 
 def vp_score(
@@ -188,7 +190,8 @@ def vp_score(
     backed out. The clamp is this repo's; the score SDE samplers don't clip. x, eps:
     (B, C, H, W) -> score (B, C, H, W)."""
     t_tensor = torch.tensor([t], device=x.device).view(-1, 1, 1, 1)
-    mean_coeff, std = schedule.marginal_prob(torch.ones_like(x), t_tensor)
+    log_mean_coeff = schedule.log_mean_coeff(t_tensor)
+    mean_coeff, std = torch.exp(log_mean_coeff), schedule.std(log_mean_coeff)
 
     pred_x0 = (x - std * eps) / mean_coeff
     safe_pred_x0 = torch.clamp(pred_x0, -1.0, 1.0)
@@ -201,7 +204,7 @@ def vp_sde_euler_maruyama_step(
     schedule: VPFamilySchedule, x: torch.Tensor, t: float, eps: torch.Tensor, s: float
 ) -> torch.Tensor:
     """One Euler-Maruyama step of the reverse SDE (score SDE Eq. 6) from t to s < t, for VP or
-    sub-VP. The last step (s = 1e-4) returns the mean, with no noise, like the reference code's
+    sub-VP. The last step (s = T_END) returns the mean, with no noise, like the reference code's
     ``denoise``. x, eps: (B, C, H, W) -> x_s."""
     score = vp_score(schedule, x, t, eps)
 
@@ -211,7 +214,7 @@ def vp_sde_euler_maruyama_step(
     f_rev = drift - g_sq * score  # Eq. 6's drift; the step runs backwards in t, so x - f_rev dt
     x_mean = x - f_rev * dt
 
-    if s > 1e-4:
+    if s > T_END:
         z = torch.randn_like(x)
         x_prev = x_mean + math.sqrt(g_sq * dt) * z
     else:
@@ -260,7 +263,7 @@ class EulerMaruyamaVESampler(SDESampler):
         f_rev = -g_sq * score  # f = 0
         x_mean = x - f_rev * dt
 
-        if s > 1e-4:
+        if s > T_END:
             z = torch.randn_like(x)
             x_prev = x_mean + math.sqrt(g_sq * dt) * z
         else:
@@ -304,7 +307,7 @@ class PredictorCorrectorSampler(SDESampler):
     ) -> torch.Tensor:
         timestamps = self.generate_timestamps(num_steps)
         batch_size = x.shape[0]
-        device = config.device
+        device = x.device
 
         for t, s in zip(timestamps[:-1], timestamps[1:], strict=False):
             t_batch = torch.full(

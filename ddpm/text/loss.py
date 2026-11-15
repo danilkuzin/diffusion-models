@@ -14,10 +14,9 @@ def mdlm_loss(
         the unweighted mean cross-entropy over masked positions)
     """
     B, L, V = logits.shape
-    logits_t = logits.to(torch.float32)
-    ce = F.cross_entropy(
-        logits_t.reshape((B * L, V)), x.reshape((B * L,)), reduction="none"
-    ).reshape((B, L))  # (B, L)
+    ce = F.cross_entropy(logits.reshape((B * L, V)), x.reshape((B * L,)), reduction="none").reshape(
+        (B, L)
+    )  # (B, L)
     masked_ce = ce * is_masked.to(torch.float32)  # (B, L)
     masked_ce_s = masked_ce.sum(dim=(1))  # (B,)
     nelbo_s = masked_ce_s * (1 / t)  # (B,)

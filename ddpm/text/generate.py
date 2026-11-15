@@ -4,6 +4,7 @@ import torch
 
 from ddpm.paths import Paths, add_root_argument
 from ddpm.text.config import (
+    MDLMObjectiveConfig,
     TextConfig,
     load_text_config,
 )
@@ -12,29 +13,36 @@ from ddpm.text.eval import load_model
 from ddpm.text.sample import sample
 
 
-def generate(config: TextConfig, paths: Paths, args: argparse.Namespace) -> None:
+def generate(
+    config: TextConfig,
+    paths: Paths,
+    checkpoint: str,
+    num_samples: int,
+    num_steps: int,
+    seed: int,
+) -> None:
     in_path = download_tiny_shakespeare(paths.text_data_dir)
     voc = Vocab()
     voc.build(in_path)
 
     assert voc.size() == 65, f"expected Tiny Shakespeare's 65 characters, got {voc.size()}"
 
-    model, step = load_model(config, paths, args.checkpoint, voc.size())
+    model, step = load_model(config, paths, checkpoint, voc.size())
     model.eval()
 
-    generator = torch.Generator(device=config.device).manual_seed(args.seed)
+    generator = torch.Generator(device=config.device).manual_seed(seed)
 
     with torch.no_grad():
         generated = sample(
             model,
-            args.num_samples,
+            num_samples,
             config.data.seq_len,
-            args.num_steps,
+            num_steps,
             voc.mask_id,
             generator,
         )
     for i in range(generated.shape[0]):
-        print(f"--- sample {i} (num_steps={args.num_steps}, step {step}) ---")
+        print(f"--- sample {i} (num_steps={num_steps}, step {step}) ---")
         print(decode(generated[i], voc))
 
 
@@ -63,7 +71,7 @@ def config_from_argv(
     config = load_text_config(args.config)
     if args.run_name is not None:
         config.run_name = args.run_name
-    if not config.objective.type == "mdlm":
+    if not isinstance(config.objective, MDLMObjectiveConfig):
         parser.error(
             "generate samples MDLM runs only; the AR baseline is a reference for MDLM's bound, "
             "with no sampler"
@@ -74,4 +82,4 @@ def config_from_argv(
 
 if __name__ == "__main__":
     config, paths, args = config_from_argv()
-    generate(config, paths, args)
+    generate(config, paths, args.checkpoint, args.num_samples, args.num_steps, args.seed)

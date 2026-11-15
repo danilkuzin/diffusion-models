@@ -75,7 +75,7 @@ class RectifiedFlowSampler(BaseSampler):
     ) -> torch.Tensor:
         timestamps = self.generate_timestamps(num_steps)
         batch_size = x.shape[0]
-        device = config.device
+        device = x.device
 
         for t, s in zip(timestamps[:-1], timestamps[1:], strict=False):
             t_batch = torch.full(

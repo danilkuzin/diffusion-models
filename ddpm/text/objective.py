@@ -20,9 +20,8 @@ class Objective(ABC):
 
 
 class MDLMObjective(Objective):
-    def __init__(self, mask_id: int, config: TextConfig, objective: MDLMObjectiveConfig) -> None:
+    def __init__(self, mask_id: int, objective: MDLMObjectiveConfig) -> None:
         self.mask_id = mask_id
-        self.config = config
         self.t_min = objective.t_min
 
     def loss_stats(
@@ -48,9 +47,6 @@ class ARObjective(Objective):
     """The AR baseline, not a diffusion model: the exact next-character NLL, a reference for
     MDLM's bound. It has no sampler."""
 
-    def __init__(self, config: TextConfig) -> None:
-        self.config = config
-
     def loss_stats(
         self, x: torch.Tensor, generator: torch.Generator, model: TextDiT
     ) -> dict[str, Any]:
@@ -64,9 +60,9 @@ class ARObjective(Objective):
 def create_objective(config: TextConfig, mask_id: int) -> Objective:
     match config.objective:
         case MDLMObjectiveConfig() as objective:
-            return MDLMObjective(mask_id, config, objective)
+            return MDLMObjective(mask_id, objective)
         case ARObjectiveConfig():
-            return ARObjective(config)
+            return ARObjective()
         case _:
             assert_never(config.objective)
 

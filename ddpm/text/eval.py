@@ -6,7 +6,7 @@ import torch
 
 from ddpm.paths import Paths, add_root_argument
 from ddpm.text.config import TextConfig, load_text_config
-from ddpm.text.data import Vocab, download_tiny_shakespeare, encode_file, split
+from ddpm.text.data import Vocab, download_tiny_shakespeare, encode_file, split, val_chunks
 from ddpm.text.model import TextDiT
 from ddpm.text.objective import build_model, create_objective
 from ddpm.text.train import VAL_SEED, validation_loss
@@ -78,7 +78,7 @@ def main() -> None:
         "objective": config.objective.type,
         "K": config.eval.K,
         "seed": VAL_SEED,
-        "n_chunks": encoded_val.numel() // config.data.seq_len,
+        "n_chunks": val_chunks(encoded_val, config.data.seq_len).shape[0],
         "val_loss": {"mean": val_loss, "stderr": val_stderr},
     }
 

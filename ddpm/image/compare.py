@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 
 import torch
 
-from ddpm.image.config import Config, UNetModelConfig, load_config
+from ddpm.image.config import Config, load_config
 from ddpm.image.data import get_dataloaders, load_data
 from ddpm.image.eval import apply_eval_overrides, compute_fid_kid, load_model
 from ddpm.paths import Paths, add_root_argument, resolve_epoch
@@ -148,17 +148,18 @@ def main() -> None:
         steps = int(overrides["steps"]) if "steps" in overrides else None
         eta = float(overrides["eta"]) if "eta" in overrides else None
         omega = float(overrides["omega"]) if "omega" in overrides else None
+        run_name = overrides.get("run_name")
+        num_ch = int(overrides["num_ch"]) if "num_ch" in overrides else None
         config = apply_eval_overrides(
-            config, sampler=overrides.get("sampler"), eta=eta, omega=omega
+            config,
+            sampler=overrides.get("sampler"),
+            eta=eta,
+            omega=omega,
+            run_name=run_name,
+            num_ch=num_ch,
         )
         force_raw = overrides.get("ema") == "false"
         epoch = int(overrides["epoch"]) if "epoch" in overrides else None
-        if "run_name" in overrides:
-            config.run_name = overrides["run_name"]
-        if "num_ch" in overrides:
-            if not isinstance(config.model, UNetModelConfig):
-                raise ValueError(f"num_ch override only applies to a UNet model ({label!r})")
-            config.model.num_ch = int(overrides["num_ch"])
         paths = Paths.from_config(args.root, path, config.run_name, tag=label)
         spec = {"config": path, **overrides}
         variants.append(Variant(label, config, paths, steps, force_raw, epoch, spec))

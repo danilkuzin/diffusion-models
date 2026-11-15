@@ -43,7 +43,7 @@ def test_forward_closed_form_is_the_marginal_of_the_chain(viz: Path | None) -> N
     n = 16384
     x_0 = torch.linspace(-1, 1, 16).reshape(1, 1, 4, 4).repeat(n, 1, 1, 1)
 
-    chain = schedule.forward_per_step(x_0, schedule.beta, config.T)  # [x_0, x_1, ..., x_T]
+    chain = schedule.forward_per_step(x_0)  # [x_0, x_1, ..., x_T]
 
     for i in range(config.T):
         direct = schedule.forward(x_0, torch.full((n, 1), i), torch.randn_like(x_0))

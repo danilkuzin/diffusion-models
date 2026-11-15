@@ -1,6 +1,10 @@
 # diffusion-models
 
+[![CI Build](https://github.com/danilkuzin/diffusion-models/actions/workflows/ci.yml/badge.svg)](https://github.com/danilkuzin/diffusion-models/actions/workflows/ci.yml)
+
 A from-scratch PyTorch implementation of diffusion models on CIFAR-10: discrete-time DDPM and DDIM, score-based SDEs, and rectified flow; and a masked diffusion language model on Tiny Shakespeare. The code follows the papers and their reference implementations; the aim is readability and checkable math, not production code or competitive FID.
+
+Previous generative model repositories: [GAN](https://github.com/danilkuzin/mnist-gan) and [VAE](https://github.com/danilkuzin/mnist-vae).
 
 - [Tuning](docs/tuning.md): how the baseline was found, and how noisy its score is.
 - [Evaluation](docs/evaluation.md): the FID protocol, its calibration, and how to compare runs.
@@ -164,7 +168,7 @@ The text model is a DiT over characters. Each character is masked with probabili
 
 ## Usage
 
-Install from `requirements.txt`, or use Docker, with the repo mounted at `/source` and a data folder at `/data`:
+Install PyTorch and torchvision for your platform ([pytorch.org](https://pytorch.org/get-started/locally/)) first, then `requirements.txt`, which leaves them out. Or use Docker, with the repo mounted at `/source` and a data folder at `/data`:
 
 ```bash
 docker build -t diffusion-models .

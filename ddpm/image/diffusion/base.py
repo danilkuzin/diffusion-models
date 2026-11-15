@@ -60,21 +60,22 @@ def predict_noise(
     model: BaseModel,
     config: Config,
 ) -> torch.Tensor:
-    """eps_theta(x, t), guided when the config has guidance and labels are given: Ho & Salimans
-    2022, Eq. 6, with omega = 1 + w. x: (B, C, H, W); t_batch: (B,); lbl_batch: (B,) long or None
-    -> eps (B, C, H, W), or the velocity for rectified flow. Every sampler calls the model only
-    through this."""
+    """eps_theta(x, t), guided when the config has guidance: Ho & Salimans 2022, Eq. 6, with
+    omega = 1 + w. x: (B, C, H, W); t_batch: (B,); lbl_batch: (B,) long, None only without
+    guidance -> eps (B, C, H, W), or the velocity for rectified flow. Every sampler calls the
+    model only through this."""
     eps: torch.Tensor
-    if config.guidance is not None and lbl_batch is not None:
-        assert config.omega_classifier_free is not None
-        batch_size = x.shape[0]
-        null_lbl = torch.full(
-            (batch_size,), config.data.num_classes, device=x.device, dtype=torch.long
-        )
-        eps_uncond: torch.Tensor = model(x, t_batch, null_lbl)
-        eps_cond: torch.Tensor = model(x, t_batch, lbl_batch)
-        eps = eps_uncond + config.omega_classifier_free * (eps_cond - eps_uncond)
-    else:
+    if config.guidance is None:
         eps = model(x, t_batch)
+        return eps
+    if lbl_batch is None:
+        raise ValueError("a guided model needs labels; num_classes is the null class")
+
+    assert config.omega_classifier_free is not None
+    batch_size = x.shape[0]
+    null_lbl = torch.full((batch_size,), config.data.num_classes, device=x.device, dtype=torch.long)
+    eps_uncond: torch.Tensor = model(x, t_batch, null_lbl)
+    eps_cond: torch.Tensor = model(x, t_batch, lbl_batch)
+    eps = eps_uncond + config.omega_classifier_free * (eps_cond - eps_uncond)
 
     return eps
