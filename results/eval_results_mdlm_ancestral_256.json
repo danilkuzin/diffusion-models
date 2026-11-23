@@ -1,0 +1,38 @@
+{
+  "run_name": "text_mdlm_baseline",
+  "checkpoint": "best",
+  "step": 30000,
+  "objective": "mdlm",
+  "K": 8,
+  "seed": 0,
+  "n_chunks": 435,
+  "val_loss": {
+    "mean": 1.571782112121582,
+    "stderr": 0.01962299256136362
+  },
+  "samples": {
+    "sampler": "ancestral",
+    "num_steps": 256,
+    "num_samples": 256,
+    "seed": 0,
+    "model_calls_per_sample": 256,
+    "seconds": 158.50253661300007,
+    "word_validity": {
+      "mean": 0.8033298173735965,
+      "stderr": 0.003463207570946482
+    },
+    "entropy": 3.264587393007467,
+    "examples": [
+      " dived, as she had lolling disomecian,\nFor the priestion, that Probibia's\nShall have my buried honest up,\nyour inchiest thou to purgence and\nTo questus thirst's day.\n\nHLORIZEL:\nSit how you hath oft an for longer wish\nHer motion, in ladies in any tale a\nser",
+      "WARD:\nShow me not friend! Shares sits for Warwick,\nBut shoo in Virtuon's bellinge.\n\nWESTMOLEAUSERLE:\n\nOXFORD:\nBids wrong of guilteress age deat?\n\nCLARENCE:\nO you wilt, slaugnet securse or could I ready down,\nAnd but a like he is  minds!\n\nSOMMERSET:\nMOre, K"
+    ],
+    "reference": {
+      "val_word_validity": {
+        "mean": 0.9471136628345946,
+        "stderr": 0.0032470529490760997
+      },
+      "val_entropy": 3.3319354637018086,
+      "train_entropy": 3.3090842752741243
+    }
+  }
+}

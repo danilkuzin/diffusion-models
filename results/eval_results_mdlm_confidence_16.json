@@ -1,0 +1,38 @@
+{
+  "run_name": "text_mdlm_baseline",
+  "checkpoint": "best",
+  "step": 30000,
+  "objective": "mdlm",
+  "K": 8,
+  "seed": 0,
+  "n_chunks": 435,
+  "val_loss": {
+    "mean": 1.571782112121582,
+    "stderr": 0.01962299256136362
+  },
+  "samples": {
+    "sampler": "confidence",
+    "num_steps": 16,
+    "num_samples": 256,
+    "seed": 0,
+    "model_calls_per_sample": 16,
+    "seconds": 10.645335132000014,
+    "word_validity": {
+      "mean": 0.8168544524135888,
+      "stderr": 0.003070576732823557
+    },
+    "entropy": 2.922314927647276,
+    "examples": [
+      " make me no hare.\nI come to make me to charlet me to meet\nWhat I was I say on a womdness to   lane:\nI God was it me to me? I am a wood of yie,\nIhould not that  name no  sure of my hotse\nI was to  core come to me more that yot now\nOf your lial to get tn a g",
+      "\nAnd not my tongue, to save you a part oo morgot,\nYot thre that you have yours for you have you,\nAot for your life, I a I say to be found.\nNot you that I have to live  am to a sraver\nThat you art the house of  cl 't aot you:\nWhom I I say, if you have nourh"
+    ],
+    "reference": {
+      "val_word_validity": {
+        "mean": 0.9471136628345946,
+        "stderr": 0.0032470529490760997
+      },
+      "val_entropy": 3.3319354637018086,
+      "train_entropy": 3.3090842752741243
+    }
+  }
+}

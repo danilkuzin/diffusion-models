@@ -1,0 +1,38 @@
+{
+  "run_name": "text_mdlm_baseline",
+  "checkpoint": "best",
+  "step": 30000,
+  "objective": "mdlm",
+  "K": 8,
+  "seed": 0,
+  "n_chunks": 435,
+  "val_loss": {
+    "mean": 1.571782112121582,
+    "stderr": 0.01962299256136362
+  },
+  "samples": {
+    "sampler": "ancestral",
+    "num_steps": 16,
+    "num_samples": 256,
+    "seed": 0,
+    "model_calls_per_sample": 16,
+    "seconds": 10.197227712000029,
+    "word_validity": {
+      "mean": 0.6928277571904364,
+      "stderr": 0.004234556883560072
+    },
+    "entropy": 3.2696617067408975,
+    "examples": [
+      "sce?\nCould no my baths, as I are persive sto me,\nI pay o' out spritop to leaves this prisony.\n\nGAERGE:\nIs't My age Viern youloves me;\nLend me hle envy to do or head;\nGod \nARGELO:\nMonder, that finger this not were the quiliet\nhim to be you, let him hath hid",
+      "--\nI now through his motea; and as we conhi:\nI am Dder for hometh mine like of a silkethis;\nAnd,sto he thinks no fotth. He had,\nAnd of sides, but nighted att all frive ripling graves;\nAnd tires a vers louds to turror my fools,\nI shall distard peril; three "
+    ],
+    "reference": {
+      "val_word_validity": {
+        "mean": 0.9471136628345946,
+        "stderr": 0.0032470529490760997
+      },
+      "val_entropy": 3.3319354637018086,
+      "train_entropy": 3.3090842752741243
+    }
+  }
+}

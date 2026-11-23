@@ -1,0 +1,38 @@
+{
+  "run_name": "text_mdlm_baseline",
+  "checkpoint": "best",
+  "step": 30000,
+  "objective": "mdlm",
+  "K": 8,
+  "seed": 0,
+  "n_chunks": 435,
+  "val_loss": {
+    "mean": 1.571782112121582,
+    "stderr": 0.01962299256136362
+  },
+  "samples": {
+    "sampler": "ancestral",
+    "num_steps": 4,
+    "num_samples": 256,
+    "seed": 0,
+    "model_calls_per_sample": 4,
+    "seconds": 2.2959084160000316,
+    "word_validity": {
+      "mean": 0.4653779510492504,
+      "stderr": 0.004658514250852903
+    },
+    "entropy": 3.2459790872071723,
+    "examples": [
+      "ona?\nall-dininglylled puct a\nSterly! Oved Adem trerdayespardered the\natdresAnclonued iriamestas to issues;\nAMy\nOf Henk's off this meedt parefy sad\nAian govern,dreadicato wigh Ltiel leurh evote\nspleat,ain Antetamuu be put idlt in clester.\nAt P Red death A a",
+      "?\nTr cruntI use un up ht weign? hy elos shi: lilt Dd!,\nVorlana thoseting trophilors to her:\nAnd merit uuroun an efield? I ser, loud of last bab,\nAnd on him shallgf at 'Capulare, thus fond roon'd.\nMo bloodhGit  Ruman MArb:oonty Ins aotu on therest\nTWhat Pea"
+    ],
+    "reference": {
+      "val_word_validity": {
+        "mean": 0.9471136628345946,
+        "stderr": 0.0032470529490760997
+      },
+      "val_entropy": 3.3319354637018086,
+      "train_entropy": 3.3090842752741243
+    }
+  }
+}

@@ -123,5 +123,5 @@ python -m ddpm.text.eval -c configs/text/ar.yaml --root /data
 
 - One run, one seed.
 - The AR baseline is not trained in this release; nanoGPT's 1.47 is the only AR reference.
-- Ancestral sampling only; sample quality is not measured.
+- Sample quality is measured by word validity and character entropy only ([results](../README.md#text-masked-diffusion-on-tiny-shakespeare-configstextmdlmyaml)).
 - No dropout: the training loss ends about 0.25 below the validation loss.

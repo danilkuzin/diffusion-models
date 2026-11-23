@@ -1,0 +1,38 @@
+{
+  "run_name": "text_mdlm_baseline",
+  "checkpoint": "best",
+  "step": 30000,
+  "objective": "mdlm",
+  "K": 8,
+  "seed": 0,
+  "n_chunks": 435,
+  "val_loss": {
+    "mean": 1.571782112121582,
+    "stderr": 0.01962299256136362
+  },
+  "samples": {
+    "sampler": "confidence",
+    "num_steps": 1,
+    "num_samples": 256,
+    "seed": 0,
+    "model_calls_per_sample": 1,
+    "seconds": 0.6649540250000427,
+    "word_validity": {
+      "mean": 0.22897828370283688,
+      "stderr": 0.003648220229239918
+    },
+    "entropy": 3.2846230127091878,
+    "examples": [
+      ".dl?h blsd:ndnaodgg dske dr i?mn:ekae voltdswm 'hu\nduyBsdlsdeve. cln e o!esAt h  ee   en lwut fe\nnrwesue\nttavmDOrH\n tueEnehftae , er\nle\np srmvvU r Aiam h.vmsn pneFdscmooItmlheLtdelulp oo e\ne E\nn tea fnigwAmtAaaN oebeoNuaeilBA ih\nclG tnm.oiinCu\nee:dhD\nhih a",
+      "leuS ayt Sd gseuthn prhtg-eiteo f o sos ,Ci:aiiatKDd ,\nwurltnTIrool dhnheas\nbosndsk ti  ,hvLA \nGm:e e ri:oulo n nfi t n m ltr tronddot ,supiItldhpnoRtnghAeIonh  atfmto o:pWols rrohtsnionto iud'e.hl  lR o ofst  thmwtYvd b:ovrtglIrs ss  \n  ct\n rty\nsT,a\nt\nb O"
+    ],
+    "reference": {
+      "val_word_validity": {
+        "mean": 0.9471136628345946,
+        "stderr": 0.0032470529490760997
+      },
+      "val_entropy": 3.3319354637018086,
+      "train_entropy": 3.3090842752741243
+    }
+  }
+}

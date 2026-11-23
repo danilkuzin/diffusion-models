@@ -1,0 +1,38 @@
+{
+  "run_name": "text_mdlm_baseline",
+  "checkpoint": "best",
+  "step": 30000,
+  "objective": "mdlm",
+  "K": 8,
+  "seed": 0,
+  "n_chunks": 435,
+  "val_loss": {
+    "mean": 1.571782112121582,
+    "stderr": 0.01962299256136362
+  },
+  "samples": {
+    "sampler": "confidence",
+    "num_steps": 256,
+    "num_samples": 256,
+    "seed": 0,
+    "model_calls_per_sample": 256,
+    "seconds": 157.85998346600002,
+    "word_validity": {
+      "mean": 0.9930396127689469,
+      "stderr": 0.0007240557244592754
+    },
+    "entropy": 3.058566217957163,
+    "examples": [
+      "o the duke of your courses and your good,\nIt is to the Duke of York, for the king of France;\nAnd for the Duke of York of York is dead.\nYour fight, my lord, my lord of your soul.\n\nKING RICHARD III:\nWhy, so, my lord; ay, my lord, my lord,\nYou shall be your s",
+      "e is your honour to be your noble,\nAnd come with your head of your honour.\n\nMENENIUS:\nYou shall your honour to the nobles your love\nIn the depaties of your voices, and you have your honour\nThan never what you have your honour in.\n\nBRUTUS:\nIf you seem to dr"
+    ],
+    "reference": {
+      "val_word_validity": {
+        "mean": 0.9471136628345946,
+        "stderr": 0.0032470529490760997
+      },
+      "val_entropy": 3.3319354637018086,
+      "train_entropy": 3.3090842752741243
+    }
+  }
+}

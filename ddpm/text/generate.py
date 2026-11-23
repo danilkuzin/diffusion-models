@@ -1,8 +1,10 @@
 import argparse
+from typing import get_args
 
 import torch
 
 from ddpm.paths import Paths, add_root_argument
+from ddpm.text import SamplerName, create_sampler
 from ddpm.text.config import (
     MDLMObjectiveConfig,
     TextConfig,
@@ -10,7 +12,6 @@ from ddpm.text.config import (
 )
 from ddpm.text.data import Vocab, decode, download_tiny_shakespeare
 from ddpm.text.eval import load_model
-from ddpm.text.sample import sample
 
 
 def generate(
@@ -20,6 +21,7 @@ def generate(
     num_samples: int,
     num_steps: int,
     seed: int,
+    sampler_name: SamplerName,
 ) -> None:
     in_path = download_tiny_shakespeare(paths.text_data_dir)
     voc = Vocab()
@@ -31,18 +33,20 @@ def generate(
     model.eval()
 
     generator = torch.Generator(device=config.device).manual_seed(seed)
-
+    z = torch.full(
+        (num_samples, config.data.seq_len), voc.mask_id, dtype=torch.long, device=generator.device
+    )
+    sampler = create_sampler(sampler_name)
     with torch.no_grad():
-        generated = sample(
+        generated = sampler.sample(
             model,
-            num_samples,
-            config.data.seq_len,
+            z,
             num_steps,
             voc.mask_id,
             generator,
         )
     for i in range(generated.shape[0]):
-        print(f"--- sample {i} (num_steps={num_steps}, step {step}) ---")
+        print(f"--- sample {i} ({sampler_name}, num_steps={num_steps}, step {step}) ---")
         print(decode(generated[i], voc))
 
 
@@ -58,6 +62,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument(
         "--run-name", type=str, default=None, help="checkpoint dir to load (default: config's)"
+    )
+    parser.add_argument(
+        "--sampler",
+        choices=get_args(SamplerName),
+        default="ancestral",
+        help="ancestral (a sample from the model), or confidence-based, sampled or greedy",
     )
 
     return parser
@@ -82,4 +92,6 @@ def config_from_argv(
 
 if __name__ == "__main__":
     config, paths, args = config_from_argv()
-    generate(config, paths, args.checkpoint, args.num_samples, args.num_steps, args.seed)
+    generate(
+        config, paths, args.checkpoint, args.num_samples, args.num_steps, args.seed, args.sampler
+    )

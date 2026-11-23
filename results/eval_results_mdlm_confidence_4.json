@@ -1,0 +1,38 @@
+{
+  "run_name": "text_mdlm_baseline",
+  "checkpoint": "best",
+  "step": 30000,
+  "objective": "mdlm",
+  "K": 8,
+  "seed": 0,
+  "n_chunks": 435,
+  "val_loss": {
+    "mean": 1.571782112121582,
+    "stderr": 0.01962299256136362
+  },
+  "samples": {
+    "sampler": "confidence",
+    "num_steps": 4,
+    "num_samples": 256,
+    "seed": 0,
+    "model_calls_per_sample": 4,
+    "seconds": 2.4078237479999984,
+    "word_validity": {
+      "mean": 0.6479349577745981,
+      "stderr": 0.0037391304370718464
+    },
+    "entropy": 2.754160812056448,
+    "examples": [
+      " hate mo speet\n: re live to are leave to a mar sh teec,\nTo never man e weeps. I  ee   em tale me hereife;\nAnd os as the meatere I extreat boess, I wile net mn theer bea.\nBe besires it if ere and yet seen he,.ode never one tne Riteo, threwd bethee ahl\neco t",
+      "hese not ie use I I ha e benter I I sad so\n\noee ther Iuoee then fou heavet\nahe hore io  does, where e am wat. I sae t a I st, for know a mar\n\nuyo   am e relaed  lft to hot the aoesthere\nto conjects  im I have  nit teey have to\none of  I  st, it is in t a g"
+    ],
+    "reference": {
+      "val_word_validity": {
+        "mean": 0.9471136628345946,
+        "stderr": 0.0032470529490760997
+      },
+      "val_entropy": 3.3319354637018086,
+      "train_entropy": 3.3090842752741243
+    }
+  }
+}

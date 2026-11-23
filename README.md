@@ -25,7 +25,7 @@ The model has 770K parameters, about 2% of Ho et al.'s 35.7M, so that it trains 
 
 On Tiny Shakespeare, one token per character:
 
-- a masked diffusion language model (MDLM): the masking forward process, its bound on the likelihood, and ancestral sampling
+- a masked diffusion language model (MDLM): the masking forward process, its bound on the likelihood, and ancestral and confidence-based sampling
 - an autoregressive baseline on the same transformer: not a diffusion model, but a reference for MDLM's bound. The code trains and scores it; it has no sampler, and no run of it is reported here
 
 The text model has 16.6M parameters and trains in about 4 h on a T4.
@@ -130,6 +130,20 @@ The same UNet with a class embedding (771K parameters), trained with `--omega 3 
 
 MDLM's val loss is its NELBO per character on the whole validation set, with fixed masking noise ([evaluation](docs/text.md#evaluation)). One run, 30,000 steps in 4 h on a T4. Data: [`eval_results_mdlm.json`](results/eval_results_mdlm.json).
 
+The two text samplers, [`eval_results_mdlm_<sampler>_<steps>.json`](results/) (256 samples from `best.pt` at seed 0; a step is one model call, so the two cost the same):
+
+| Steps | Ancestral: word validity | Entropy | Confidence: word validity | Entropy |
+|---|---|---|---|---|
+| 1 | 0.223 ± 0.004 | 3.287 | 0.229 ± 0.004 | 3.285 |
+| 4 | 0.465 ± 0.005 | 3.246 | 0.648 ± 0.004 | 2.754 |
+| 16 | 0.693 ± 0.004 | 3.270 | 0.817 ± 0.003 | 2.922 |
+| 64 | 0.785 ± 0.004 | 3.260 | 0.886 ± 0.003 | 3.010 |
+| 256 | 0.803 ± 0.003 | 3.265 | 0.993 ± 0.001 | 3.059 |
+
+Real validation text (256 sequences) scores 0.947 ± 0.003 word validity and 3.332 entropy; the training text's entropy is 3.309. Word validity is the fraction of a sample's words that occur in the training text, its first and last word excluded; ± is the standard error over samples. Entropy is the unigram character entropy of all samples together, in the units of the loss.
+
+From 4 steps on, the confidence sampler (Nie et al. 2025, §2.4) has the higher word validity and the lower entropy: it is not a sample from the model, and it prefers likely characters. At 256 steps its word validity exceeds that of real text, so a higher value is not by itself better text, and unigram entropy does not detect repeated phrases. The greedy variant is omitted: it is deterministic from all masks, so its 256 samples are one sequence.
+
 ### Samples
 
 Each image run's last training preview: EMA weights at epoch 200, 1000 steps of its config's sampler, from fixed noise.
@@ -204,13 +218,16 @@ python -m ddpm.text.train -c configs/text/mdlm.yaml --root /data
 python -m ddpm.text.eval -c configs/text/mdlm.yaml --root /data
 python -m ddpm.text.generate -c configs/text/mdlm.yaml --root /data
 python -m ddpm.text.generate -c configs/text/mdlm.yaml --root /data --num-steps 16
+
+# Text: a row of the samplers table; also --sampler ancestral, and 1, 4, 16 and 256 steps
+python -m ddpm.text.eval -c configs/text/mdlm.yaml --root /data --sampler confidence --num-steps 64 --tag confidence_64
 ```
 
 Image training writes a preview grid to `<root>/plots/<run_name>/` at every checkpoint; the grids above are the last ones. The text entry points download Tiny Shakespeare under `--root` on first use.
 
 ## What's next
 
-- **Text, towards LLaDA (Nie et al. 2025):** confidence-based and semi-autoregressive sampling, a model without the time input, and prompted generation.
+- **Text, towards LLaDA (Nie et al. 2025):** semi-autoregressive sampling, a model without the time input, and prompted generation.
 
 ## Papers
 
@@ -225,6 +242,7 @@ Image training writes a preview grid to `<root>/plots/<run_name>/` at every chec
 - Heusel et al. 2017 (FID) and Bińkowski et al. 2018 (KID).
 - Austin et al. 2021 (D3PM): discrete diffusion, and masking as an absorbing state.
 - Sahoo et al. 2024 (MDLM): the masked diffusion bound, its SUBS parameterisation, and ancestral sampling.
+- Chang et al. 2022 (MaskGIT) and Nie et al. 2025 (LLaDA): confidence-based sampling.
 - Shi et al. 2024 (MD4): the bound's independence of the masking schedule.
 - Ou et al. 2024 (RADD) and Zheng et al. 2024: why the time input is optional; Zheng et al. also on float32 rounding in categorical sampling.
 - Kingma et al. 2021 (VDM): the low-discrepancy sampler of training times.

@@ -1,0 +1,38 @@
+{
+  "run_name": "text_mdlm_baseline",
+  "checkpoint": "best",
+  "step": 30000,
+  "objective": "mdlm",
+  "K": 8,
+  "seed": 0,
+  "n_chunks": 435,
+  "val_loss": {
+    "mean": 1.571782112121582,
+    "stderr": 0.01962299256136362
+  },
+  "samples": {
+    "sampler": "ancestral",
+    "num_steps": 64,
+    "num_samples": 256,
+    "seed": 0,
+    "model_calls_per_sample": 64,
+    "seconds": 40.989471922999996,
+    "word_validity": {
+      "mean": 0.7845267055992419,
+      "stderr": 0.004014296752484109
+    },
+    "entropy": 3.2595402584294195,
+    "examples": [
+      "is ood bed of old parge!\nby win ye! givest too fellower:\nTo be friend o'll talkshostill,\nCould be us much wed he, should not four mere, mane'd\nHave steep'd and feat.\n\nPARLINAL:\nWhat one day,\nComband a grace nor sinsenough of night;\nI'll make her calour, th",
+      "G Edwardice with her Burwick, some amissted live.\nAs thou shame ie; oldly, no: I dark down?\nAyother die wasing one, that had roop'd shes!\n\nFirst and insultad Ang Johnney pidew.\n\nGLOUCESTER:\nWelco mere you saw she that grave.\n\nRICHMOND:\nI arred, the fair al"
+    ],
+    "reference": {
+      "val_word_validity": {
+        "mean": 0.9471136628345946,
+        "stderr": 0.0032470529490760997
+      },
+      "val_entropy": 3.3319354637018086,
+      "train_entropy": 3.3090842752741243
+    }
+  }
+}
